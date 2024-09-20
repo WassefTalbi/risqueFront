@@ -1,0 +1,25 @@
+.risk-matrix {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 6 columns + 1 for header */
+  gap: 1px;
+  border: 1px solid #ddd;
+}
+
+.matrix-header, .matrix-row {
+  display: contents;
+}
+
+.header-cell, .row-header, .matrix-cell {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.header-cell {
+  background-color: #f3f5f9;
+}
+
+.row-header {
+  background-color: #f3f5f9;
+}
+

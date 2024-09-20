@@ -1,0 +1,247 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Entreprises" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row g-3 mb-4">
+    <div class="col-xxl-auto me-auto">
+        <button class="btn btn-primary" (click)="addEntrepriseModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Entreprise</button>
+    </div><!--end col-->
+    <div class="col-xxl-2">
+        <div class="search-box">
+            <input type="text" class="form-control" id="searchResultList" [(ngModel)]="term" (keyup)="filterdata()" placeholder="chercher avec nom entreprise"> <i class="ri-search-line search-icon"></i>
+        </div>
+    </div><!--end col-->
+ 
+</div><!--end row-->
+
+<div class="row" id="seller-list">
+    @for (entreprise of entreprises; track $index) {
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-end mb-3">
+                    <button type="button" class="btn-close text-end" (click)="removeEntreprise(entreprise.id)"></button>
+                </div>
+                <div class="avatar-md mx-auto">
+                    <div class="avatar-title bg-light rounded">
+                        <img src="http://localhost:1919/user/image/{{entreprise.logo}}" alt="" class="avatar-sm p-1">
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    
+                        <h5>{{entreprise.nom}}</h5>
+                   
+                    <p class="text-muted mb-0">{{entreprise.adresse}}</p>
+                </div>
+            </div>
+            <div class="row g-0 text-center">
+                <div >
+                    <div class="card-body px-3 border-top border-bottom border-end border-dashed">
+                        <h5 class="mb-1"></h5>
+                        <p class="text-muted text-truncate mb-0">{{entreprise.domaine}}</p>
+                    </div>
+                </div>
+              
+             
+            </div>
+            <div class="card-body hstack gap-2">
+                <a [routerLink]="['/departements/list',entreprise.id]" class="btn btn-subtle-secondary w-100">Departements</a>
+                <button type="button" class="btn btn-subtle-primary w-100" (click)="editEntreprise(entreprise.id)">Modifier</button>
+            </div>
+        </div>
+    </div><!--end col-->
+} 
+</div><!--end row-->
+<div id="elmLoader">
+    <div class="spinner-border text-primary avatar-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+<div class="row align-items-center mb-4 justify-content-between text-center text-sm-start" id="pagination-element">
+    <div class="col-sm">
+        <div class="text-muted">
+            Showing <span class="fw-semibold">{{entreprises?.length}}</span> of <span class="fw-semibold">{{entreprisesList?.length}}</span> Results
+        </div>
+    </div>
+    <div class="col-sm-auto  mt-3 mt-sm-0">
+        <pagination class="pagination-wrap hstack gap-2" [totalItems]="entreprisesList?.length" [itemsPerPage]="10" (pageChanged)="pageChanged($event)"></pagination>
+    </div>
+</div>
+
+<div id="noresult">
+    <div class="text-center py-4">
+        <div class="avatar-md mx-auto mb-4">
+            <div class="avatar-title bg-light text-primary rounded-circle fs-4xl">
+                <i class="bi bi-search"></i>
+            </div>
+        </div>
+        <h5 class="mt-2">Sorry! No Result Found</h5>
+        <p class="text-muted mb-0">We've searched  entreprises We did not find any entreprises for you search.</p>
+    </div>
+</div>
+
+<!-- removeItemModal -->
+<div bsModal #removeItemModal="bs-modal" id="removeItemModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" id="close-removemodal" (click)="removeItemModal.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <i class="ph-trash display-5 text-danger"></i>
+                    <div class="mt-4 pt-2 mx-4 mx-sm-5">
+                        <h4>Are you sure ?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to remove this entreprise ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" (click)="removeItemModal.hide()">Close</button>
+                    <button type="button" class="btn w-sm btn-danger" id="remove-element" (click)="deleteEntreprise()">Yes,
+                        Delete It!</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- addEntrepriseModal -->
+<div id="addEntrepriseModal" bsModal #addEntrepriseModal="bs-modal" class="modal fade zoomIn" tabindex="-1" aria-labelledby="addEntrepriseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEntrepriseModalLabel">Ajouter Entreprise</h5>
+                <button type="button" class="btn-close" id="close-addEntrepriseModal" (click)="addEntrepriseModalHide()"></button>
+            </div>
+            <form (ngSubmit)="saveEntreprise()" [formGroup]="entrepriseForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div>
+                        <div class="mb-3">
+                            <label class="form-label">Entreprise Logo <span class="text-danger">*</span></label>
+                        
+                            <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                            <div *ngIf="entrepriseForm.get('logo')?.hasError('required') && entrepriseForm.get('logo')?.touched" class="text-danger">
+                             Entreprise logo is required.
+                            </div>
+                          
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-Nom" class="form-label">Entreprise Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-Nom" formControlName="nom" placeholder="Entreprise nom" required>
+                            <div *ngIf="entrepriseForm.get('nom')?.hasError('required') && entrepriseForm.get('nom')?.touched" class="text-danger">
+                                Entreprise Nom is required.
+                              </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Entreprise Email <span class="text-danger">*</span></label>   
+                            <input type="email" class="form-control" id="email" formControlName="email" placeholder="Email" required>
+                            <div *ngIf="entrepriseForm.get('email')?.hasError('required') && entrepriseForm.get('email')?.touched" class="text-danger">
+                                Email is required.
+                              </div>
+                              <div *ngIf="entrepriseForm.get('email')?.hasError('email') && entrepriseForm.get('email')?.touched" class="text-danger">
+                                Invalid email format.
+                              </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-domaine" class="form-label">Entreprise Domaine  <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-domaine" formControlName="domaine" placeholder="Entreprise domaine" required>
+                            <div *ngIf="entrepriseForm.get('domaine')?.hasError('required') && entrepriseForm.get('domaine')?.touched" class="text-danger">
+                                Entreprise domaine is required.
+                              </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="entreprise-adresse" class="form-label">Entreprise adresse<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-adresse" formControlName="adresse" placeholder="Entreprise adresse " required>
+                            <div *ngIf="entrepriseForm.get('adresse')?.hasError('required') && entrepriseForm.get('adresse')?.touched" class="text-danger">
+                                Entreprise adresse is required.
+                              </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost-danger" (click)="addEntrepriseModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                    <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Entreprise Modal -->
+<div class="modal fade" bsModal #editEntrepriseModal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="editEntrepriseModalLabel" aria-hidden="true" [config]="{backdrop: 'static'}">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEntrepriseModalLabel">Edit Entreprise</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="editEntrepriseModalHide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateEntreprise()" [formGroup]="entrepriseForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div>
+                        <div class="mb-3">
+                            <label class="form-label">Entreprise Logo <span class="text-danger">*</span></label>
+                        
+                            <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                            <div *ngIf="entrepriseForm.get('logo')?.hasError('required') && entrepriseForm.get('logo')?.touched" class="text-danger">
+                             Entreprise logo is required.
+                            </div>
+                          
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-Nom" class="form-label">Entreprise Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-Nom" formControlName="nom" placeholder="Entreprise nom" required>
+                            <div *ngIf="entrepriseForm.get('nom')?.hasError('required') && entrepriseForm.get('nom')?.touched" class="text-danger">
+                                Entreprise Nom is required.
+                              </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Entreprise Email <span class="text-danger">*</span></label>   
+                            <input type="email" class="form-control" id="email" formControlName="email" placeholder="Email" required>
+                            <div *ngIf="entrepriseForm.get('email')?.hasError('required') && entrepriseForm.get('email')?.touched" class="text-danger">
+                                Email is required.
+                              </div>
+                              <div *ngIf="entrepriseForm.get('email')?.hasError('email') && entrepriseForm.get('email')?.touched" class="text-danger">
+                                Invalid email format.
+                              </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-domaine" class="form-label">Entreprise Domaine  <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-domaine" formControlName="domaine" placeholder="Entreprise domaine" required>
+                            <div *ngIf="entrepriseForm.get('domaine')?.hasError('required') && entrepriseForm.get('domaine')?.touched" class="text-danger">
+                                Entreprise domaine is required.
+                              </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="entreprise-adresse" class="form-label">Entreprise adresse<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="entreprise-adresse" formControlName="adresse" placeholder="Entreprise adresse " required>
+                            <div *ngIf="entrepriseForm.get('adresse')?.hasError('required') && entrepriseForm.get('adresse')?.touched" class="text-danger">
+                                Entreprise adresse is required.
+                              </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost-danger" (click)="addEntrepriseModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                    <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Ajouter</button>
+                </div>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>

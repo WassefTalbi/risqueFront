@@ -1,0 +1,269 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="List View" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+
+
+<div class="row" id="ticketsList">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center g-2">
+                    <div class="col-lg-3 me-auto">
+                        <h6 class="card-title mb-0">Liste Projets</h6>
+                    </div><!--end col-->
+                    <div class="col-lg-2 col-sm-4">
+                        <div class="search-box">
+                            <input type="text" class="form-control search" [(ngModel)]="term" (keyup)="filterdata()" placeholder="chercher avec titre ">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div><!--end col-->
+                    <div class="col-sm-auto">
+                        <div class="hstack gap-2">
+                            <button class="btn btn-subtle-danger d-none" id="remove-actions" (click)="deleteRecordModal.show()"><i class="ri-delete-bin-2-line"></i></button>
+                            <a href="javascript:void(0);" (click)="addProjet.show()" class="btn btn-secondary"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Projet</a>
+                        </div>
+                    </div><!--end col-->
+                </div><!--end row-->
+            </div>
+            <div class="card-body mt-3">
+                <div class="table-responsive table-card">
+                    <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" >Chef Projet </th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="nom" (click)="onSort('nom')">Projet Title</th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="description" (click)="onSort('description')">Projet Description</th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="createDate" (click)="onSort('dateDebut')">Date Debut</th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="dueDate" (click)="onSort('dateFin')">Date Fin</th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="avancement" (click)="onSort('avancement')">Avancement</th>
+                                <th scope="col" class="sort cursor-pointer" ticketsortable="etat" (click)="onSort('etat')">Etat</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list form-check-all">
+                            @for (projet of projets; track $index) {
+                            <tr id="l_{{projet.id}}">
+                              
+                                <td class="assign">
+                                    <div class="avatar-group flex-nowrap">
+                                       
+                                        <a routerLink="/pages/profile" class="avatar-group-item" tooltip="{{projet.chefProjet.firstName}} {{projet.chefProjet.lastName}}">
+                                            <img src="http://localhost:1919/user/image/{{projet.chefProjet.photoProfile}}" alt="" class="avatar-xxs rounded-circle">
+                                        </a>
+                                  
+                                    </div>
+                                </td>
+                                <td class="projet_title">{{projet.nom}}</td>
+                                <td class="client_name">{{projet.description}}</td>
+                                <td class="create_date">{{projet.dateDebut}}</td>
+                                <td class="due_date">{{projet.dateFin}}</td>
+                                <td class="priority"><span class="badge" [ngClass]="{'bg-danger':projet.avancement <50,'bg-info':projet.avancement == 50,'bg-success':projet.avancement >50}">{{projet.avancement}} %</span>
+                                </td>
+                                <td class="status"><span class="badge" [ngClass]="{'bg-primary-subtle text-primary':projet.etat === 'PLANIFIE','bg-warning-subtle text-warning':projet.etat === 'ENCOURS','bg-info-subtle text-info':projet.etat === 'PLANIFIE','bg-danger-subtle text-danger':projet.etat === 'TERMINE'}">{{projet.etat}}</span>
+                                </td>
+                                <td>
+                                    <ul class="d-flex gap-2 list-unstyled mb-0">
+                                        <li>
+                                            <a [routerLink]="['/projet/details',projet.id]" class="btn btn-subtle-primary btn-icon btn-sm "><i class="ph-eye"></i></a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);"  class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn"><i class="ph-pencil"></i></a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" (click)="removeItem(projet.id)" class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn"><i class="ph-trash"></i></a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                        </tbody><!-- end tbody -->
+                    </table><!-- end table -->
+
+                    <div id="elmLoader">
+                        <div class="spinner-border text-primary avatar-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="noresult d-none">
+                        <div class="text-center py-4">
+                            <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                            <h5 class="mt-2">Sorry! No Result Found</h5>
+                            <p class="text-muted mb-0">We've searched more than 6k+ tickets We did not find any tickets
+                                for you search.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center mt-4 pt-3" id="pagination-element">
+                    <div class="col-sm">
+                        <div class="text-muted text-center text-sm-start">
+                            Showing <span class="fw-semibold">{{projets?.length}}</span> of <span class="fw-semibold">{{projetList?.length}}</span> Results
+                        </div>
+                    </div><!--end col-->
+                    <div class="col-sm-auto mt-3 mt-sm-0">
+                        <pagination class="pagination-wrap hstack justify-content-center gap-2" [totalItems]="projetList?.legnth" [itemsPerPage]="10" (pageChanged)="pageChanged($event)"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #addProjet="bs-modal" class="modal fade" id="addTickets">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTicketModalLabel">Ajouter Projet</h5>
+                <button type="button" class="btn-close" (click)="addProjet.hide()"></button>
+            </div>
+
+            <form (ngSubmit)="saveProjet()" [formGroup]="projetForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="client-name-input" class="form-label">Projet Titre <span class="text-danger">*</span></label>
+                                <input type="text" id="client-name-input" class="form-control" formControlName="nom" placeholder="projet titre" required>
+                                <div *ngIf="projetForm.get('nom')?.invalid && projetForm.get('nom')?.touched" class="text-danger">
+                                    Projet Titre is required.
+                                </div>
+                            </div>
+                        </div>
+                               
+                        <div class="col-lg-12">
+                            <div class="mb-4 d-flex align-items-center">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Chef Projet :</h6>
+                                </div>
+                                @if (assignto) {
+                                <div class="avatar-group justify-content-center" id="assignee-member">
+                               
+                                    <a routerLink="/pages/profile" class="avatar-group-item mb-2" tooltip="{{assignto.firstName}} {{assignto.lastName}}">
+                                        <img src="http://localhost:1919/user/image/{{assignto.photoProfile}}" alt="" class="rounded-circle avatar-xs">
+                                    </a>
+                                
+                                </div>
+                                }
+                            </div>
+                            <ngx-simplebar class="mx-n4 px-4 mb-3" style="max-height: 180px;">
+                                <div class="vstack gap-3 select-element">
+                                    @for (data of assignList; track $index) {
+                                    <div class="d-flex align-items-center option-list">
+                                        <div class="avatar-xs flex-shrink-0 me-3">
+                                            <img src="http://localhost:1919/user/image/{{data.photoProfile}}" alt="" class="img-fluid rounded-circle">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0"><a href="javascript:void(0);" class="text-body d-block">{{data.firstName}} {{data.lastName}}</a></h6>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <button type="button" class="btn btn-light btn-sm btn-action{{$index}}" (click)="addAssign($index)">
+                                                {{ assignedId === $index ? 'Remove' : 'Add' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                    <!-- end member item -->
+                                </div>
+                                <!-- end list -->
+                            </ngx-simplebar>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="projet-description-input" class="form-label">Projet Description <span class="text-danger">*</span></label>
+                                <input type="text" id="tprojet-description-input" formControlName="description" class="form-control" placeholder="Projet Description" required>
+                                <div *ngIf="projetForm.get('description')?.invalid && projetForm.get('description')?.touched" class="text-danger">
+                                    Projet Description is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="create-date-input" class="form-label">Date Debut Projet<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" mwlFlatpickr [altInput]="true" [convertModelValue]="true" dateFormat="d M,Y" altFormat="d M,Y" formControlName="dateDebut" id="create-date-input" placeholder="date debut du projet" required>
+                                <div *ngIf="projetForm.get('dateDebut')?.invalid && projetForm.get('dateDebut')?.touched" class="text-danger">
+                                    Date Debut Projet is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="due-date-input" class="form-label">Date Fin Projet<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" mwlFlatpickr [altInput]="true" [convertModelValue]="true" dateFormat="d M,Y" altFormat="d M,Y" formControlName="dateFin" id="due-date-input" placeholder=" date fin du projet" required>
+                                <div *ngIf="projetForm.get('dateFin')?.invalid && projetForm.get('dateFin')?.touched" class="text-danger">
+                                    Date Fin Projet is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="priority-input" class="form-label">Projet Avancement<span class="text-danger">*</span></label>
+                                <input type="range" class="form-range" id="priority-input" formControlName="avancement" min="0" max="100" step="1" (input)="updateTooltip($event)" #rangeInput>
+                                <div class="tooltip" *ngIf="rangeInput.value">{{ rangeInput.value }}%</div>
+                                <div *ngIf="projetForm.get('avancement')?.invalid && projetForm.get('avancement')?.touched" class="text-danger">
+                                    Projet Avancement is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="etat-input" class="form-label">Projet Status<span class="text-danger">*</span></label>
+                                <select class="form-select" id="etat-input" formControlName="etat" data-choices data-choices-search-false>
+                                    <option value="">Select Status</option>
+                                    <option value="TERMINE">TERMINE</option>
+                                    <option value="PLANIFIE">PLANIFIE</option>
+                                    <option value="ENCOURS">ENCOURS</option>
+                                    <option value="ANNULE">ANNULE</option>
+                                </select>
+                                <div *ngIf="projetForm.get('etat')?.invalid && projetForm.get('etat')?.touched" class="text-danger">
+                                    Projet Status is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+                    </div><!--end row-->
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="addProjet.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn" [disabled]="projetForm.invalid">Ajouter Projet</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+</div>
+
+
+<!-- deleteRecordModal -->
+<div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" id="deleteRecord-close" (click)="deleteRecordModal.hide()"></button>
+            </div>
+            <div class="modal-body p-md-5">
+                <div class="text-center">
+                    <div class="text-danger">
+                        <i class="bi bi-trash display-5"></i>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="mb-2">Are you sure ?</h4>
+                        <p class="text-muted mx-3 mb-0">Are you sure you want to remove this record ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 pt-2 mb-2">
+                    <button type="button" class="btn w-sm btn-light btn-hover" (click)="deleteRecordModal.hide()">Close</button>
+                    <button type="button" class="btn w-sm btn-danger btn-hover" id="delete-record" (click)="deleteData(deleteID)">Yes, Delete It!</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /deleteRecordModal -->

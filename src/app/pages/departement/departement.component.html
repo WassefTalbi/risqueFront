@@ -1,0 +1,287 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Departement Details" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+
+<div class="row">
+    <div class="col-xxl-9">
+       
+        <div id="productList">
+            <div class="row g-3 justify-content-between mb-3">
+                <div class="col-lg-3">
+                    <div class="search-box">
+                        <input type="text" class="form-control search" placeholder="chercher avec nom departement" [(ngModel)]="term" (keyup)="filterdata()">
+                        <i class="ri-search-line search-icon"></i>
+                    </div>
+                </div><!--end col-->
+                <div class="col-lg-auto">
+                    <button class="btn btn-subtle-danger d-none" id="remove-actions" (click)="deleteRecordModal.show()"><i class="ri-delete-bin-2-line"></i></button>
+                    <button type="button" class="btn btn-primary add-btn ms-1" (click)="addDepartementModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter
+                        Departement</button>
+                </div><!--end col-->
+            </div><!--end row-->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-centered align-middle table-nowrap mb-0">
+                            <thead class="table-active">
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="option" (change)="checkUncheckAll($event)" [(ngModel)]="masterSelected" id="checkAll">
+                                            <label class="form-check-label" for="checkAll"></label>
+                                        </div>
+                                    </th>
+                                    <th class="sort cursor-pointer" (click)="onSort('nom')">
+                                        Departements</th>
+                                    <th class="sort cursor-pointer" (click)="onSort('priorite')">priorite</th>
+                                    <th class="sort cursor-pointer" (click)="onSort('valeurEconomique')">valeurEconomique</th>
+
+                                    
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            @for ( departement of departementList; track $index) {
+                            <tbody class="list form-check-all" id="p_{{departement.id}}">
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="checkAll" value="{{departement.id}}" [(ngModel)]="departement.state" (change)="onCheckboxChange($event)">
+                                            <label class="form-check-label"></label>
+                                        </div>
+                                    </td>
+                                    <td class="id" style="display:none;"><a href="javascript:void(0);" class="fw-medium link-primary">#TB01</a></td>
+                                    <td class="departements">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-xs bg-light rounded p-1 me-2">
+                                                <img src="http://localhost:1919/user/image/{{departement.logo}}" alt="" class="img-fluid d-block">
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0"><a routerLink="/ecommerce/product-details" class="text-reset text-capitalize products">{{departement.nom}}</a>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="priorite">{{departement.priorite}}</td>
+                                    <td class="valeurEconomique">{{departement.valeurEconomique}}</td>
+                                    <td>
+                                        <div dropdown class="dropdown">
+                                            <button dropdownToggle class="btn btn-subtle-secondary btn-sm btn-icon">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+
+                                            <ul *bsDropdownMenu class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" [routerLink]="['/projets/list',departement.id]"><i class="ph-eye align-middle me-1"></i> consulter projets</a></li>
+                                                <li><a class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="javascript:void(0);"><i class="ph-pencil align-middle me-1"></i>
+                                                        Modifier</a></li>
+                                                <li><a class="dropdown-item remove-item-btn" (click)="removeItem(departement.id)" href="javascript:void(0);"><i class="ph-trash align-middle me-1"></i> supprimer</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        }
+                        </table>
+                    </div><!--end table-responsive-->
+                    <div id="elmLoader">
+                        <div class="spinner-border text-primary avatar-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="noresult" style="display: none;">
+                        <div class="text-center py-4">
+                            <div class="avatar-md mx-auto mb-4">
+                                <div class="avatar-title bg-light text-primary rounded-circle fs-4xl">
+                                    <i class="bi bi-search"></i>
+                                </div>
+                            </div>
+                            <h5 class="mt-2">Sorry! No Result Found</h5>
+                            <p class="text-muted mb-0">We've searched more than 150+ products We did not find any
+                                products for you search.</p>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 align-items-center" id="pagination-element">
+                        <div class="col-sm">
+                            <div class="text-muted">
+                                Showing <span class="fw-semibold">{{departementList?.length}}</span> of <span class="fw-semibold">{{departements?.length}}</span>
+                                Results
+                            </div>
+                        </div>
+
+                        <div class="col-sm-auto mt-3 mt-sm-0">
+                            <pagination class="pagination-wrap hstack gap-2" [totalItems]="departements?.length" [itemsPerPage]="8" (pageChanged)="pageChanged($event)"></pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--end col-->
+    <div class="col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="ratio ratio-16x9">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6509156.773725123!2d-123.79622260161696!3d37.19312212390098!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9fe5f285e3d%3A0x8b5109a227086f55!2sCalifornia%2C%20USA!5e0!3m2!1sen!2sin!4v1678106410566!5m2!1sen!2sin" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="card-body pt-1">
+                <div class="avatar-lg mt-n5 position-relative mx-auto">
+                    <div class="avatar-title bg-body-secondary rounded shadow">
+                        <img src="http://localhost:1919/user/image/{{entreprise.logo}}" alt="" class="avatar-sm">
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="mb-2"></h5>
+                    <p class="text-muted mb-4 pb-2">Entreprise Details</p>
+                </div>
+                <div class="table-responsive table-card">
+                    <table class="table align-middle table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th> Nom</th>
+                                <td>{{entreprise.nom}}</td>
+                            </tr>
+                            <tr>
+                                <th>Domaine</th>
+                                <td>{{entreprise.domaine}}</td>
+                            </tr>
+                            <tr>
+                                <th>Adresse</th>
+                                <td>{{entreprise.adresse}}</td>
+                            </tr>
+                            <tr>
+                                <th>Website</th>
+                                <td><a href="javascript:void(0);" class="text-reset">steex&#64;themesbrand.com</a></td>
+                            </tr>
+                            <tr>
+                                <th>email</th>
+                                <td>{{entreprise.email}}</td>
+                            </tr>
+                            <tr>
+                                <th>Création</th>
+                                <td>1995</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <ul class="hstack gap-2 justify-content-center list-unstyled mt-4 pt-2 mb-0">
+                    <li>
+                        <a href="javascript:void(0);" class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i></a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="btn btn-primary btn-sm"><i class="bi bi-facebook"></i></a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="btn btn-info btn-sm"><i class="bi bi-twitter"></i></a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm"><i class="bi bi-envelope"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div><!--end card-->
+        
+     
+    </div><!--end col-->
+</div><!--end row-->
+<div bsModal #addDepartementModal="bs-modal" class="modal fade" id="showModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header px-4 pt-4">
+                <h5 class="modal-title" id="exampleModalLabel">Departement</h5>
+                <button type="button" class="btn-close" (click)="addDepartementModal.hide()"></button>
+            </div>
+
+            <form (ngSubmit)="saveDepartement()" [formGroup]="departementForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body p-4">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+
+                    <input type="hidden" id="order-field">
+                    <input type="hidden" id="rating-field">
+                    <input type="hidden" id="discount-field">
+
+                    <div class="mb-3">
+                        <label for="nom-input" class="form-label">Departement Nom <span class="text-danger">*</span></label>
+                        <input type="text" id="nom-input" formControlName="nom" class="form-control" placeholder="Enter Departement Nom" required>
+                        <div *ngIf="departementForm.get('nom')?.hasError('required') && departementForm.get('nom')?.touched" class="text-danger">
+                            Departement Nom is required.
+                          </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Departement Logo <span class="text-danger">*</span></label>
+                    
+                        <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                        <div *ngIf="departementForm.get('logo')?.hasError('required') && departementForm.get('logo')?.touched" class="text-danger">
+                            Departement logo is required.
+                        </div>
+                      
+                    </div>
+
+                
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="priorite-input" class="form-label">priorite <span class="text-danger">*</span></label>
+                                <input type="text" id="priorite-input" class="form-control" formControlName="priorite" placeholder="Enter departement priorite" required>
+                                <div *ngIf="departementForm.get('priorite')?.hasError('required') && departementForm.get('priorite')?.touched" class="text-danger">
+                                    Departement priorite is required.
+                                  </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="valeur-economique-input" class="form-label">valeur Economique<span class="text-danger">*</span></label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="product-price-input" formControlName="valeurEconomique" placeholder="Enter valeur economique" required>
+                                    <div *ngIf="departementForm.get('valeurEconomique')?.hasError('required') && departementForm.get('valeurEconomique')?.touched" class="text-danger">
+                                        Departement valeur economique is required.
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="addDepartementModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn">Ajouter Departement</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+    <!-- modal-dialog -->
+</div>
+<!-- modal -->
+
+<!-- deleteRecordModal -->
+<div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" id="deleteRecord-close" (click)="deleteRecordModal.hide()"></button>
+            </div>
+            <div class="modal-body p-md-5">
+                <div class="text-center">
+                    <div class="text-danger">
+                        <i class="bi bi-trash display-4"></i>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="mb-2">Are you sure ?</h3>
+                        <p class="text-muted fs-lg mx-3 mb-0">Are you sure you want to remove this record ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light btn-hover" (click)="deleteRecordModal.hide()">Close</button>
+                    <button type="button" class="btn w-sm btn-danger btn-hover" (click)="deleteData(deleteID)" id="delete-record">Yes, Delete
+                        It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Categorie" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row align-items-center mb-4 g-2">
+    <div class="col-lg-3 col-md-4 me-auto">
+     
+    </div><!--end col-->
+    <div class="col-md-auto">
+        <a href="javascript:void(0);" class="btn btn-secondary" (click)="addCategoryModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Add Category</a>
+    </div><!--end col-->
+</div>
+ 
+<div class="row row-cols-xl-5 row-cols-sm-2 row-cols-1">
+    @for (categorie of categories; track $index) {
+    <div class="col">
+        <div class="card card-animate text-center bg-{{categorie.color}}-subtle border border-{{categorie.color}}-subtle">
+            <div class="card-body p-4">
+                <div class="text-end mb-3">
+                    <button type="button" class="btn-close text-end" (click)="removeCategorie(categorie.id)"></button>
+                </div>
+                <div class="avatar-md mx-auto mb-4">
+                    <div class="avatar-title bg-white rounded">
+                        <img src="http://localhost:1919/user/image/{{categorie.logo}}" alt="" class="avatar-sm">
+                    </div>
+                </div>
+                
+                    <h5 class="text-truncate">{{categorie.nom}}</h5>
+            
+                <p class="text-muted mb-0">contient la liste des actifs de categorie {{categorie.nom}}</p>
+            </div>
+        </div><!--end card-->
+    </div><!--end col-->
+}
+</div><!--end row-->
+
+<div class="noresult"  style="display: none;">
+    <div class="text-center py-4">
+        <i class="ph-magnifying-glass fs-1 text-primary"></i>
+        <h5 class="mt-2">Sorry! No Result Found</h5>
+        <p class="text-muted mb-0">We've searched more than 150+ Courses We did not find any Courses
+            for you search.</p>
+    </div>
+</div>
+
+<div id="elmLoader">
+    <div class="spinner-border text-primary avatar-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+
+
+<div bsModal #addCategoryModal="bs-modal" class="modal fade" id="addCategoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-secondary p-3">
+                <h5 class="modal-title text-white" id="addCategoryLabel">Ajouter Categorie</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="addCategoryModal.hide()"></button>
+            </div>
+
+            <form (ngSubmit)="saveCategory()" [formGroup]="categoryForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div>
+                        <div class="mb-3">
+                            <label class="form-label">Categorie Logo <span class="text-danger">*</span></label>
+                        
+                            <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                            <div *ngIf="categoryForm.get('logo')?.hasError('required') && categoryForm.get('logo')?.touched" class="text-danger">
+                             categorie logo is required.
+                            </div>
+                          
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-Nom" class="form-label">Categorie Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categorie-Nom" formControlName="nom" placeholder="categorie nom" required>
+                            <div *ngIf="categoryForm.get('nom')?.hasError('required') && categoryForm.get('nom')?.touched" class="text-danger">
+                                categorie Nom is required.
+                              </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="addCategoryModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn">Ajouter Categorie</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+</div><!--end add Property modal-->
+
+<div bsModal #removeItemModal="bs-modal" id="removeItemModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" id="close-removemodal" (click)="removeItemModal.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <i class="ph-trash display-5 text-danger"></i>
+                    <div class="mt-4 pt-2 mx-4 mx-sm-5">
+                        <h4>Are you sure ?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to remove this categorie ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" (click)="removeItemModal.hide()">Close</button>
+                    <button type="button" class="btn w-sm btn-danger" id="remove-element" (click)="deleteCategorie()">Yes,
+                        Delete It!</button>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+  </div>

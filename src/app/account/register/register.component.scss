@@ -1,0 +1,9 @@
+.auth-page-wrapper {
+  background-image: url('~src/assets/images/background2.jpg');
+  background-size: cover;
+  background-position: center;
+}
+.country-dropdown {
+  max-height: 200px; /* Adjust this value to your needs */
+  overflow-y: auto;
+}

@@ -1,0 +1,190 @@
+<div class="row"> 
+    <div class="col-lg-12">
+      <button type="button" class="btn btn-primary add-btn ms-1" (click)="addUserModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter
+          chef projet</button>
+  </div>
+    <div class="col-xl-3 col-md-6" *ngFor="let user of users">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-end mb-3">
+            <button type="button" class="btn-close text-end" (click)="removeUser(user.id)"></button>
+        </div>
+          <img src="assets/images/small/img-4.jpg" alt="" class="w-100 rounded object-cover" height="120">
+  
+          <div class="text-center">
+            <div class="mt-n4">
+              <img [src]="user.imageToShow ?? 'assets/images/users/avatar-1.jpg'"  alt="" class="avatar-md rounded-circle p-1 mt-n2">
+            </div>
+            <div class="mt-4 border-bottom border-bottom-dashed">
+              <h5 class="fs-17">{{user.lastName}} {{user.firstName}}</h5>
+              <p class="mb-3 text-muted">{{user.email}}</p>
+            </div>
+            <div class="mt-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-0"><span>Phone</span></h6>
+                <p class="text-muted mb-0">{{user.phone}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex align-items-center justify-content-between">
+            <button type="button" class="btn btn-success btn-label btn-sm"
+                    [disabled]="user.nonLocked"
+                    (click)="unblockUser(user.id)">
+              <i class="ri-check-double-line label-icon align-middle fs-lg me-2"></i>
+              Unblock
+            </button>
+            <button type="button" class="btn btn-danger btn-label btn-sm"
+                    [disabled]="!user.nonLocked"
+                    (click)="blockUser(user.id)">
+              <i class="bx bx-block label-icon align-middle fs-lg me-2 "></i>
+              Block
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <!-- removeItemModal -->
+  <div bsModal #removeItemModal="bs-modal" id="removeItemModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" id="close-removemodal" (click)="removeItemModal.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <i class="ph-trash display-5 text-danger"></i>
+                    <div class="mt-4 pt-2 mx-4 mx-sm-5">
+                        <h4>Are you sure ?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to remove this user ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" (click)="removeItemModal.hide()">Close</button>
+                    <button type="button" class="btn w-sm btn-danger" id="remove-element" (click)="deleteUser()">Yes,
+                        Delete It!</button>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+  </div>
+  
+  
+  <div bsModal #addUserModal="bs-modal" class="modal fade" id="showModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header px-4 pt-4">
+                <h5 class="modal-title" id="exampleModalLabel">Crée chef projet</h5>
+                <button type="button" class="btn-close" (click)="addUserModal.hide()"></button>
+            </div>
+            <form (ngSubmit)="onSubmit()" [formGroup]="signupForm" class="tablelist-form" novalidate autocomplete="off">
+              <div class="modal-body p-4">
+                  <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                  <input type="hidden" id="id-field">
+  
+                  <input type="hidden" id="order-field">
+                  <input type="hidden" id="rating-field">
+                  <input type="hidden" id="discount-field">
+  
+                  <div class="mb-3">
+                      <label for="nom-input" class="form-label"> Nom <span class="text-danger">*</span></label>
+                      <input type="text" id="nom-input" formControlName="lastName" class="form-control" placeholder="Enter nom de chef projet " required>
+                      <div *ngIf="signupForm.get('lastName')?.hasError('required') && signupForm.get('nom')?.touched" class="text-danger">
+                          chef projet Nom is required.
+                        </div>
+                  </div>
+  
+                  <div class="mb-3">
+                      <label class="form-label">Prenom <span class="text-danger">*</span></label> 
+                      <input type="text" id="nom-input" formControlName="firstName" class="form-control" placeholder="Enter prenom de chef projet" required>
+                      <div *ngIf="signupForm.get('firstName')?.hasError('required') && signupForm.get('logo')?.touched" class="text-danger">
+                          chef projet logo is required.
+                      </div> 
+                  </div>
+                  <div class="mb-3">
+                    <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="useremail" placeholder="Enter email address" required formControlName="email" [ngClass]="{ 'is-invalid': submitted && !f['password'].errors }">
+                    <div *ngIf="emailError" class="alert alert-danger mt-1" role="alert">
+                      {{ emailError }}
+                    </div>
+  
+                  </div>
+              
+                  <div class="mb-3">
+                    <label class="form-label" for="password-input">Password <span class="text-danger">*</span></label>
+  
+                    <div class="position-relative auth-pass-inputgroup">
+  
+                      <input [type]="fieldTextType ? 'text' : 'password'" class="form-control password-input pe-5" placeholder="Enter password" id="password-input" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required formControlName="password" [ngClass]="{ 'is-invalid': submitted && f['password'].errors}">
+  
+                      <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle" [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType
+              }" (click)="toggleFieldTextType()"></i></button>
+  
+                    </div>
+                    <div *ngIf="passwordError" class="alert alert-danger mt-1" role="alert">
+                      {{ passwordError }}
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                    <div dropdown class="input-group">
+                      <button dropdownToggle class="btn btn-light border" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{{selectedCountry.flagImg}}" alt="flag img" height="20" class="country-flagimg rounded">
+                        <span class="ms-2 country-codeno">{{selectedCountry.countryCode}}</span>
+                      </button>
+                      <input type="text" class="form-control rounded-end flag-input" placeholder="Enter number" required formControlName="mobileNumber" [ngClass]="{ 'is-invalid': submitted && f['mobileNumber'].errors }">
+                      <div *bsDropdownMenu class="dropdown-menu w-100 country-dropdown">
+                        <div class="p-2 px-3 pt-1 searchlist-input">
+                        <input type="text" class="form-control form-control-sm border search-countryList" placeholder="Search country name or country code..." (input)="onSearchChange($event)" (click)="$event.stopPropagation()" />                                      </div>
+                        <ul class="list-unstyled dropdown-menu-list mb-0">
+                          <li *ngFor="let data of Default" class="dropdown-item d-flex cursor-pointer" (click)="selectValue(data)">
+                            <div class="flex-shrink-0 me-2"><img src="{{data.flagImg}}" alt="country flag" class="options-flagimg" height="20"></div>
+                            <div class="flex-grow-1">
+                              <div class="d-flex">
+                                <div class="country-name me-1">{{data.countryName}}</div><span class="countrylist-codeno text-muted">{{data.countryCode}}</span>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="invalid-feedback">
+                      Please enter your mobile number
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="photoProfile">Photo Profile</label>
+                    <input type="file" id="photoProfile" class="form-control" formControlName="photoProfile" (change)="onChangeChefProjet($event)" />
+                    <div *ngIf="signupForm.get('photoProfile')?.hasError('required') && signupForm.get('photoProfile')?.touched" class="text-danger">
+                      Photo Profile is required.
+                    </div>
+                  </div>
+                   
+                  <div class="mb-4">
+                    <p class="mb-0 fs-xs text-muted fst-italic">By registering you agree to the Steex <a routerLink="/pages/term-conditions" class="text-primary text-decoration-underline fst-normal fw-medium">Terms of Use</a></p>
+                  </div>
+  
+                  
+  
+              </div>
+              <div class="modal-footer">
+                  <div class="hstack gap-2 justify-content-end">
+                      <button type="button" class="btn btn-ghost-danger" (click)="addUserModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                      <button type="submit" class="btn btn-primary" id="add-btn">Ajouter chef projet</button>
+                  </div>
+              </div>
+          </form>
+         
+  
+        </div>
+        <!-- modal-content -->
+    </div>
+    <!-- modal-dialog -->
+  </div>
+  
