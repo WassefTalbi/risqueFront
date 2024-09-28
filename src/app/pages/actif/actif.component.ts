@@ -11,6 +11,7 @@ import { selectgridData } from 'src/app/store/Learning-cources/cources.selector'
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { CategorieService } from 'src/app/core/services/categorie.service';
 import { ActifService } from 'src/app/core/services/actif.service';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-actif',
@@ -40,9 +41,12 @@ export class ActifComponent {
   listactif!: any;
   selectedCategoryId: string | null = null;
   fileLogo: File | null = null;
+  editActifId: number | null = null;
+  role:any;
   @ViewChild('addActifModal', { static: false }) addActifModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
   @ViewChild('addRisqueModal', { static: false }) addRisqueModal?: ModalDirective;
+  @ViewChild('editActifModal', { static: false }) editActifModal?: ModalDirective;
 
 
   @ViewChild('stepModal') stepModal: any;
@@ -59,11 +63,11 @@ export class ActifComponent {
 
   currentForm!: FormGroup;
 
-
+ 
   deleteID: any;
   editData: any;
 
-  constructor(private formBuilder: UntypedFormBuilder, public store: Store,
+  constructor(private formBuilder: UntypedFormBuilder, public store: Store,private authService: AuthenticationService,
                  private categorieService:CategorieService,private actifService:ActifService,private fb: FormBuilder) {
 
   }
@@ -71,7 +75,8 @@ export class ActifComponent {
   ngOnInit(): void {
     this.initializeForms();
 
-
+    this.role=this.authService.currentUser()['scope']
+    console.log('role in the actif ',this.role);
   
 
     /**
@@ -204,10 +209,56 @@ export class ActifComponent {
     this.uploadedFiles.splice(this.uploadedFiles.indexOf(event), 1);
   }
 
-  // Edit Data
-  editList(id: any) {
- 
-  }
+  editActifModalHide(){
+    this.editActifModal?.hide()
+    this.actifForm.reset()
+    this.fileLogo = null;
+     }
+
+  // Edit Actif
+    editActif(id: any) {
+      this.actifService.getActifById(id).subscribe((actif: any) => {
+        this.editActifId = id;
+        this.actifForm.patchValue({
+          nom: actif.nom,
+          description: actif.description,
+          priorite:actif.priorite,
+          valeurDonnees: actif.valeurDonnees,
+          valeurFinanciere: actif.valeurFinanciere,
+          categorieId:actif.categorieId
+          
+        });
+        this.editActifModal?.show();
+      });
+    }
+  
+    // Method to update actif details
+    updateActif() {
+      this.submitted = true;
+      if (this.actifForm.valid) {
+        const updateData = new FormData();
+        updateData.append('nom', this.actifForm.value.nom);
+        updateData.append('description', this.actifForm.value.description);
+        updateData.append('priorite', this.actifForm.value.priorite);
+        updateData.append('valeurDonnees', this.actifForm.value.valeurDonnees);
+        updateData.append('valeurFinanciere', this.actifForm.value.valeurFinanciere);
+        updateData.append('categorieId', this.actifForm.value.categorieId);
+        if (this.fileLogo) {
+          updateData.append('logo', this.fileLogo);
+        }
+  
+        this.actifService.editActif(this.editActifId, updateData).subscribe(
+          response => {
+            console.log('actif updated successfully:', response);
+            this.loadActifs();
+           this.editActifModalHide();
+          },
+          error => {
+            console.error('Error updating actif:', error);
+          }
+        );
+      }
+    }
 
 
   // Delete Product
@@ -317,7 +368,7 @@ export class ActifComponent {
           this.risqueForm.reset();
           this.fileLogo = null;
           this.loadActifs();
-          
+           
           
         },
         error => {

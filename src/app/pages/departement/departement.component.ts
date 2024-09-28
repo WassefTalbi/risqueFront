@@ -15,6 +15,7 @@ import { cloneDeep } from 'lodash';
 import { DepartementService } from 'src/app/core/services/departement.service';
 import { ActivatedRoute } from '@angular/router';
 import { EntrepriseService } from 'src/app/core/services/entreprise.service';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 
 
 @Component({
@@ -32,22 +33,21 @@ export class DepartementComponent {
   entreprise:any;
   breadCrumbItems!: Array<{}>;
   term: any
-
   deleteID: any;
   files: File[] = [];
   departementForm!: UntypedFormGroup;
   submitted = false;
   masterSelected!: boolean;
- 
-
   endItem: any
   currentEntrepriseId!: string|null;
+  role:any;
   @ViewChild('addDepartementModal', { static: false }) addDepartementModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
   editDepartement: any;
   fileLogo: File | null = null; 
 
-  constructor(private formBuilder: UntypedFormBuilder, private departementService:DepartementService,private entrepriseService:EntrepriseService,private route: ActivatedRoute) {
+  constructor(private formBuilder: UntypedFormBuilder, private departementService:DepartementService
+    ,private entrepriseService:EntrepriseService,private route: ActivatedRoute,private authService: AuthenticationService) {
   }
 
 
@@ -59,7 +59,8 @@ export class DepartementComponent {
       { label: 'Entreprise', active: true },
       { label: ' Departements', active: true }
     ];
-
+    this.role=this.authService.currentUser()['scope']
+    console.log('role in the departement ',this.role);
    this.getCurrentEntrepriseId();
    this.loadCurrentEntreprice();
     /**

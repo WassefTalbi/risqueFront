@@ -65,7 +65,7 @@
                                 <td>
                                     <ul class="d-flex gap-2 list-unstyled mb-0">
                                         <li>
-                                            <a [routerLink]="['/projet/details',projet.id]" class="btn btn-subtle-primary btn-icon btn-sm "><i class="ph-eye"></i></a>
+                                            <a  [routerLink]="role === 'ADMIN' ? ['/projet/details', projet.id] : ['/User/projet/details', projet.id]" class="btn btn-subtle-primary btn-icon btn-sm "><i class="ph-eye"></i></a>
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"  class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn"><i class="ph-pencil"></i></a>

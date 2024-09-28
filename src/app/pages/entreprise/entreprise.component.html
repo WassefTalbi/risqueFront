@@ -4,7 +4,7 @@
 
 <div class="row g-3 mb-4">
     <div class="col-xxl-auto me-auto">
-        <button class="btn btn-primary" (click)="addEntrepriseModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Entreprise</button>
+        <button  *ngIf="role==='ADMIN'" class="btn btn-primary" (click)="addEntrepriseModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Entreprise</button>
     </div><!--end col-->
     <div class="col-xxl-2">
         <div class="search-box">
@@ -20,7 +20,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="text-end mb-3">
-                    <button type="button" class="btn-close text-end" (click)="removeEntreprise(entreprise.id)"></button>
+                    <button  *ngIf="role==='ADMIN'" type="button" class="btn-close text-end" (click)="removeEntreprise(entreprise.id)"></button>
                 </div>
                 <div class="avatar-md mx-auto">
                     <div class="avatar-title bg-light rounded">
@@ -45,10 +45,10 @@
              
             </div>
             <div class="card-body hstack gap-2">
-                <a [routerLink]="['/departements/list',entreprise.id]" class="btn btn-subtle-secondary w-100">Departements</a>
-                <button type="button" class="btn btn-subtle-primary w-100" (click)="editEntreprise(entreprise.id)">Modifier</button>
+                <a  [routerLink]="role === 'ADMIN' ? ['/departements/list', entreprise.id] : ['/User/departements/list', entreprise.id]" class="btn btn-subtle-secondary w-100">Departements</a>
+                <button *ngIf="role==='ADMIN'" type="button" class="btn btn-subtle-primary w-100" (click)="editEntreprise(entreprise.id)">Modifier</button>
             </div>
-        </div>
+        </div> 
     </div><!--end col-->
 } 
 </div><!--end row-->
@@ -179,7 +179,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editEntrepriseModalLabel">Edit Entreprise</h5>
+        <h5 class="modal-title" id="editEntrepriseModalLabel">Modifier Entreprise</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="editEntrepriseModalHide()">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -237,8 +237,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost-danger" (click)="addEntrepriseModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
-                    <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Ajouter</button>
+                    <button type="button" class="btn btn-ghost-danger" (click)="editEntrepriseModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                    <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Modifier</button>
                 </div>
             </form>
       </div>

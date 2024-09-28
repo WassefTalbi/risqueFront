@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { EntrepriseComponent } from './entreprise/entreprise.component';
+import { AdminGuard } from '../core/guards/admin.guard';
 
 const routes: Routes = [
   {
@@ -76,7 +77,7 @@ const routes: Routes = [
     path: 'risque-menace', loadChildren: () => import('./risque/risque.module').then(m => m.RisqueModule)
   },
   {
-    path: 'users', loadChildren: () => import('./users/users.module').then(m => m.UsersModule)
+    path: 'users', loadChildren: () => import('./users/users.module').then(m => m.UsersModule),canActivate: [AdminGuard] 
   },
 
 

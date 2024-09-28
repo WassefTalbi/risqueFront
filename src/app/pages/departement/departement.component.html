@@ -16,7 +16,7 @@
                 </div><!--end col-->
                 <div class="col-lg-auto">
                     <button class="btn btn-subtle-danger d-none" id="remove-actions" (click)="deleteRecordModal.show()"><i class="ri-delete-bin-2-line"></i></button>
-                    <button type="button" class="btn btn-primary add-btn ms-1" (click)="addDepartementModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter
+                    <button *ngIf="role==='ADMIN'" type="button" class="btn btn-primary add-btn ms-1" (click)="addDepartementModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter
                         Departement</button>
                 </div><!--end col-->
             </div><!--end row-->
@@ -72,10 +72,10 @@
                                             </button>
 
                                             <ul *bsDropdownMenu class="dropdown-menu dropdown-menu-end">
-                                                <li><a class="dropdown-item" [routerLink]="['/projets/list',departement.id]"><i class="ph-eye align-middle me-1"></i> consulter projets</a></li>
-                                                <li><a class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="javascript:void(0);"><i class="ph-pencil align-middle me-1"></i>
-                                                        Modifier</a></li>
-                                                <li><a class="dropdown-item remove-item-btn" (click)="removeItem(departement.id)" href="javascript:void(0);"><i class="ph-trash align-middle me-1"></i> supprimer</a></li>
+                                                <li><a class="dropdown-item" [routerLink]="role === 'ADMIN' ? ['/projets/list', departement.id] : ['/User/projets/list', departement.id]"><i class="ph-eye align-middle me-1"></i> consulter projets</a></li>
+                                                <li><a *ngIf="role==='ADMIN'" class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="javascript:void(0);"><i class="ph-pencil align-middle me-1"></i>
+                                                        Modifier</a></li> 
+                                                <li><a *ngIf="role==='ADMIN'"class="dropdown-item remove-item-btn" (click)="removeItem(departement.id)" href="javascript:void(0);"><i class="ph-trash align-middle me-1"></i> supprimer</a></li>
                                             </ul>
                                         </div>
                                     </td>

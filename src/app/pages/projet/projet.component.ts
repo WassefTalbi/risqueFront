@@ -17,6 +17,7 @@ import { addticketlistData, deleteticketlistData, fetchsupporticketsData, fetcht
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { ProjetService } from 'src/app/core/services/projet.service';
 import { ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-list',
@@ -38,9 +39,9 @@ export class ProjetComponent {
   endItem: any
   projetForm!: UntypedFormGroup;
   submitted = false;
-
   assignList: any;
   term: any
+  role:any
   @ViewChild('addProjet', { static: false }) addProjet?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
   assignedId: any = null;  
@@ -48,7 +49,8 @@ export class ProjetComponent {
   editData: any;
   tooltipPosition: number = 0;
   currentDepartementId!: any;
-  constructor(private formBuilder: UntypedFormBuilder, public datepipe:DatePipe,private projetService:ProjetService,private route: ActivatedRoute) {
+  constructor(private formBuilder: UntypedFormBuilder, public datepipe:DatePipe,
+    private projetService:ProjetService,private route: ActivatedRoute,private authService: AuthenticationService) {
   }
 
   ngOnInit(): void {
@@ -60,7 +62,8 @@ export class ProjetComponent {
       { label: 'Departement', active: true },
       { label: 'Projets', active: true }
     ];
-
+    this.role=this.authService.currentUser()['scope']
+    console.log('role in the projet details ',this.role);
     /**
      * Form Validation
      */

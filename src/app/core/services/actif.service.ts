@@ -24,10 +24,10 @@ export class ActifService {
   public addActif(data:any):Observable<any> {
     return this.http.post(API_URL+ACTIF+"add",data);
   }
-  public editActif(idActif:number,data:any):Observable<any> {
+  public editActif(idActif:any,data:any):Observable<any> {
     return this.http.put(API_URL+ACTIF+"edit/"+idActif,data);
   }
   public removeActif(idActif:number):Observable<any> {
     return this.http.delete(API_URL+ACTIF+"delete/"+idActif);
   }
-}
+} 

@@ -78,8 +78,8 @@
                         <i class="bi bi-three-dots"></i>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu">
-                        <li><a class="dropdown-item" [routerLink]="['/risque-menace/overview',actif.id]"><i class="bi bi-eye align-baseline me-1"></i> Risque&Menace</a></li>
-                        <li><a class="dropdown-item" href="javascript:void(0);" (click)="editList(actif.id)"><i class="bi bi-pencil-square align-baseline me-1"></i> modifier</a></li>
+                        <li><a class="dropdown-item" [routerLink]="role === 'ADMIN' ? ['/risque-menace/overview', actif.id] : ['/User/risque-menace/overview', actif.id]"><i class="bi bi-eye align-baseline me-1"></i> Risque&Menace</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" (click)="editActif(actif.id)"><i class="bi bi-pencil-square align-baseline me-1"></i> modifier</a></li>
                         <li><a class="dropdown-item" href="javascript:void(0);" (click)="removeItem(actif.id)"><i class="bi bi-trash3 align-baseline me-1"></i> Supprimer</a></li>
                     </ul>
                 </div>
@@ -197,8 +197,10 @@
                               <label for="status-input" class="form-label">categorie<span class="text-danger">*</span></label>
                               <select class="form-select" id="status-input" [ngClass]="{'is-invalid': submitted && form['categorieId'].errors}" formControlName="categorieId">
                                   <option *ngFor="let category of categories" [value]="category.id">{{ category.nom }}</option>
-                              
                               </select>
+                              <div *ngIf="actifForm.get('categorieId')?.hasError('required') && actifForm.get('categorieId')?.touched" class="text-danger">
+                                      actif categorie is required.
+                              </div>   
                           </div>
                       </div><!--end col-->
                   </div><!--end row-->
@@ -310,3 +312,98 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /deleteRecordModal -->
 
+ 
+<!-- Edit actif Modal -->
+<div class="modal fade" bsModal #editActifModal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="editActifModalLabel" aria-hidden="true" [config]="{backdrop: 'static'}">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editActifModalLabel">Modifier Actif</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="editActifModalHide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateActif()" [formGroup]="actifForm" class="tablelist-form" novalidate autocomplete="off">
+                
+            <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Actif Logo <span class="text-danger">*</span></label>
+                    <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                    <div *ngIf="actifForm.get('logo')?.hasError('required') && actifForm.get('logo')?.touched" class="text-danger">
+                      Actif logo is required.
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="actif-nom-input" class="form-label">Actif Nom <span class="text-danger">*</span></label>
+                    <input type="text" formControlName="nom" class="form-control" placeholder="Enter actif nom" required>
+                    <div *ngIf="actifForm.get('nom')?.hasError('required') && actifForm.get('nom')?.touched" class="text-danger">
+                      Actif nom is required.
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="actif-description-input" class="form-label">Actif Description <span class="text-danger">*</span></label>
+                    <input type="text" formControlName="description" class="form-control" placeholder="Enter actif description" required>
+                    <div *ngIf="actifForm.get('description')?.hasError('required') && actifForm.get('description')?.touched" class="text-danger">
+                      Actif description is required.
+                    </div>
+                  </div>
+
+                  <div class="row">
+                      
+                      <div class="col-lg-6">
+                          <div class="mb-3">
+                              <label for="priorite-input" class="form-label">Priorite<span class="text-danger">*</span></label>
+                              <input type="number" id="lessons-input" class="form-control" formControlName="priorite" placeholder="priorite" required>
+                              <div *ngIf="actifForm.get('priorite')?.hasError('required') && actifForm.get('priorite')?.touched" class="text-danger">
+                                  actif priorite is required.
+                              </div>
+                          </div>
+                      </div><!--end col-->
+                      <div class="col-lg-6">
+                          <div class="mb-3">
+                              <label for="valeurDonnees-input" class="form-label">Valeur Données<span class="text-danger">*</span></label>
+                              <input type="number" id="valeurDonnees-input" class="form-control" formControlName="valeurDonnees" placeholder="valeur Données" required>
+                              <div *ngIf="actifForm.get('valeurDonnees')?.hasError('required') && actifForm.get('valeurDonnees')?.touched" class="text-danger">
+                                  actif valeur Données is required.
+                              </div>
+                          </div>
+                      </div><!--end col-->
+                     
+                      <div class="col-lg-6">
+                          <div class="mb-3">
+                              <label for="financiere-input" class="form-label">Valeur Financiere<span class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <span class="input-group-text">$</span>
+                                  <input type="number" id="valeurFinanciere-input" class="form-control" formControlName="valeurFinanciere" placeholder="valeur Financiere" required>
+                                  <div *ngIf="actifForm.get('valeurFinanciere')?.hasError('required') && actifForm.get('valeurFinanciere')?.touched" class="text-danger">
+                                      actif valeur Financiere is required.
+                                  </div>                             
+                             </div>
+                          </div>
+                      </div><!--end col-->
+                      <div class="col-lg-6">
+                          <div class="mb-3">
+                              <label for="status-input" class="form-label">categorie<span class="text-danger">*</span></label>
+                              <select class="form-select" id="status-input" [ngClass]="{'is-invalid': submitted && form['categorieId'].errors}" formControlName="categorieId">
+                                  <option *ngFor="let category of categories" [value]="category.id">{{ category.nom }}</option>
+                              </select>
+                              <div *ngIf="actifForm.get('categorieId')?.hasError('required') && actifForm.get('categorieId')?.touched" class="text-danger">
+                                      actif categorie is required.
+                              </div>  
+                          </div>
+                      </div><!--end col-->
+                  </div><!--end row-->
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost-danger" (click)="editActifModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                    <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Modifier</button>
+                </div>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>

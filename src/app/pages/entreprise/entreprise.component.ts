@@ -6,6 +6,7 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { EntrepriseService } from 'src/app/core/services/entreprise.service';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class EntrepriseComponent {
   submitted: boolean = false;
   addEntrepriseError: string | null = null;
   itemsPerPage=10;
+  role: any;
   @ViewChild('addEntrepriseModal', { static: false }) addEntrepriserModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   @ViewChild('editEntrepriseModal', { static: false }) editEntrepriseModal?: ModalDirective;
@@ -39,7 +41,7 @@ export class EntrepriseComponent {
   sellerChart: any;
   term: any;
   fileLogo: File | null = null;
-  constructor(private formBuilder: UntypedFormBuilder, private entrepriseService:EntrepriseService) {
+  constructor(private formBuilder: UntypedFormBuilder, private entrepriseService:EntrepriseService,private authService: AuthenticationService) {
   }
 
   ngOnInit(): void {
@@ -49,7 +51,8 @@ export class EntrepriseComponent {
       { label: 'Listes', active: true }
     ];
 
-
+    this.role=this.authService.currentUser()['scope']
+    console.log('role in the entreprise ',this.role);
     this.entrepriseForm = this.formBuilder.group({
     
       nom: ['', [Validators.required]],
