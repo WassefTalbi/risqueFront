@@ -5,6 +5,7 @@ import { reviews } from './data';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { RisqueService } from 'src/app/core/services/risque.service';
 import { ActivatedRoute } from '@angular/router';
+import { VulnerabiliteService } from 'src/app/core/services/vulnerabilite.service';
 
 @Component({
   selector: 'app-risque',
@@ -13,25 +14,31 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class RisqueComponent {
 
+
   // bread crumb items
   breadCrumbItems!: Array<{}>;
-  risqueForm!: UntypedFormGroup;
+  vulnerabiliteForm!: UntypedFormGroup;
+  menaceForm!: UntypedFormGroup;
   reviewData: any;
   submitted: boolean = false;
   deleteId: any;
   files: File[] = [];
   rate: any;
   currentTab = 'description';
-  addRisqueError: string | null = null;
+  addVulnerabiliteError: string | null = null;
+  addMenaceError: string | null = null;
   currentActifId!: string|null;
+  checkedVulnerabiliteId!: string;
   risque:any;
   actif:any;
+  vulnerabilites!:any[];
   @ViewChild('addReview', { static: false }) addReview?: ModalDirective;
-  @ViewChild('addRisqueModal', { static: false }) addRisqueModal?: ModalDirective;
+  @ViewChild('addVulnerabiliteModal', { static: false }) addVulnerabiliteModal?: ModalDirective;
+  @ViewChild('addMenaceModal', { static: false }) addMenaceModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
 
-  constructor(private formBuilder: UntypedFormBuilder,private risqueService:RisqueService,private route: ActivatedRoute) { }
+  constructor(private formBuilder: UntypedFormBuilder,private risqueService:RisqueService,private vulnerabiliteService:VulnerabiliteService,private route: ActivatedRoute) { }
 
 
   ngOnInit(): void {
@@ -45,16 +52,18 @@ export class RisqueComponent {
 
     this.getCurrentActifId();
     this.loadRisque();
+    this.loadVulnerabilites();
     /**
  * Form Validation
  */
-    this.risqueForm = this.formBuilder.group({
-      nom: [''],
-      valeurFinanciere: ['', [Validators.required]],
-      probabilite: ['', [Validators.required]],
-      priorite: ['', [Validators.required]],
-      valeurBaseImpact: ['', [Validators.required]],
+    this.vulnerabiliteForm = this.formBuilder.group({
+      nom: ['', [Validators.required]],
       actifId: [this.currentActifId, [Validators.required]],
+  
+    });
+    this.menaceForm = this.formBuilder.group({
+      nom: ['', [Validators.required]],
+     
   
     });
 
@@ -114,27 +123,37 @@ export class RisqueComponent {
       this.risque = data.risque;
       console.log('risque of actif',data.risque)
    
-    });
-   
+    }); 
 }
-  // Add Review
-  saveRisque() {
-    if (this.risqueForm.valid) {
+
+loadVulnerabilites() {
+  this.vulnerabiliteService.getVulnerabiliteByActif(this.currentActifId).subscribe((data) => {
+    this.vulnerabilites=data
+    console.log('vulnerabilites of actif',data)
+ 
+  }); 
+}
+
+checkVulnerabilite(idVulnerabilite: any) {
+  this.checkedVulnerabiliteId=idVulnerabilite;
+  console.log(idVulnerabilite)
+  this.addMenaceModal?.show()
+  }
+
+
+  saveVulnerabilite() {
+    if (this.vulnerabiliteForm.valid) {
       const registerData = new FormData();
-      registerData.append('nom', this.risqueForm.value.nom);
-      registerData.append('valeurFinanciere', this.risqueForm.value.valeurFinanciere);
-      registerData.append('probabilite', this.risqueForm.value.probabilite);
-      registerData.append('priorite', this.risqueForm.value.priorite);
-      registerData.append('valeurBaseImpact', this.risqueForm.value.valeurBaseImpact);
-      registerData.append('actifId', this.risqueForm.value.actifId);
+      registerData.append('nom', this.vulnerabiliteForm.value.nom);
+      registerData.append('actifId', this.vulnerabiliteForm.value.actifId);
 
    
       console.log(registerData)
-      this.risqueService.addRisque(registerData).subscribe(
+      this.vulnerabiliteService.addVulnerabilite(registerData).subscribe(
         response => {
-          this.risqueForm.reset();
-          this.loadRisque();
-          this.addRisqueModal?.hide();
+          this.vulnerabiliteForm.reset();
+          this.loadVulnerabilites();
+          this.addVulnerabiliteModal?.hide();
        
         },
         error => {
@@ -145,18 +164,52 @@ export class RisqueComponent {
                 errorMessage += `./ ${error.error[field]} <br>`;
               }
             }
-            this.addRisqueError = errorMessage.trim();
+            this.addVulnerabiliteError = errorMessage.trim();
           } else if (error.status === 409) {
-            this.addRisqueError = error.error;
+            this.addVulnerabiliteError = error.error;
           } else {
-            this.addRisqueError = 'An unexpected error occurred during registration, try again';
+            this.addVulnerabiliteError = 'An unexpected error occurred during registration, try again';
           }
         }
       );
     }
 
   }
+  saveMenace() {
+    
+    if (this.menaceForm.valid) {
+      const registerData = new FormData();
+      registerData.append('nom', this.menaceForm.value.nom);
+      registerData.append('vulnerabiliteId', this.checkedVulnerabiliteId);
 
+   
+      console.log(registerData)
+      this.vulnerabiliteService.addMenace(registerData).subscribe(
+        response => {
+          this.menaceForm.reset();
+          this.loadVulnerabilites();
+          this.addMenaceModal?.hide();
+       
+        },
+        error => {
+          if (error.status === 400) {
+            let errorMessage = '';
+            for (const field in error.error) {
+              if (error.error.hasOwnProperty(field)) {
+                errorMessage += `./ ${error.error[field]} <br>`;
+              }
+            }
+            this.addMenaceError = errorMessage.trim();
+          } else if (error.status === 409) {
+            this.addMenaceError = error.error;
+          } else {
+            this.addMenaceError = 'An unexpected error occurred during registration, try again';
+          }
+        }
+      );
+    }
+
+  }
   // Delete Review
   removeReview(id: any) {
     this.deleteId = id

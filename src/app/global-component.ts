@@ -14,6 +14,7 @@ export const GlobalComponent = {
   RISQUE:'risque/',
   Projet:'projet/',
   user: 'user/',
+  VULNERABILITE:'vulnerabilite/'
 
 
 
