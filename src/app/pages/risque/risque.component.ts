@@ -6,45 +6,48 @@ import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { RisqueService } from 'src/app/core/services/risque.service';
 import { ActivatedRoute } from '@angular/router';
 import { VulnerabiliteService } from 'src/app/core/services/vulnerabilite.service';
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-risque',
   templateUrl: './risque.component.html',
-  styleUrl: './risque.component.scss'
+  styleUrls: ['./risque.component.scss'] 
 })
 export class RisqueComponent {
 
-
-  // bread crumb items
+  // Bread crumb items
   breadCrumbItems!: Array<{}>;
   vulnerabiliteForm!: UntypedFormGroup;
   menaceForm!: UntypedFormGroup;
   reviewData: any;
   submitted: boolean = false;
-  deleteId: any;
-  files: File[] = [];
-  rate: any;
   currentTab = 'description';
   addVulnerabiliteError: string | null = null;
   addMenaceError: string | null = null;
-  currentActifId!: string|null;
+  currentActifId!: string | null;
+  vulnerabiliteId!: string | null;
+  menaceId!: string | null;
   checkedVulnerabiliteId!: string;
-  risque:any;
-  actif:any;
-  vulnerabilites!:any[];
+  risque: any;
+  actif: any;
+  vulnerabilites!: any[];
+  
   @ViewChild('addReview', { static: false }) addReview?: ModalDirective;
   @ViewChild('addVulnerabiliteModal', { static: false }) addVulnerabiliteModal?: ModalDirective;
   @ViewChild('addMenaceModal', { static: false }) addMenaceModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
-  @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
+  @ViewChild('removeVulnerabiliteModal', { static: false }) removeVulnerabiliteModal?: ModalDirective;
 
-  constructor(private formBuilder: UntypedFormBuilder,private risqueService:RisqueService,private vulnerabiliteService:VulnerabiliteService,private route: ActivatedRoute) { }
-
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private risqueService: RisqueService,
+    private vulnerabiliteService: VulnerabiliteService,
+    private route: ActivatedRoute,
+    private toastr: ToastrService 
+  ) { }
 
   ngOnInit(): void {
-    /**
-     * BreadCrumb
-     */
+    // Breadcrumb
     this.breadCrumbItems = [
       { label: 'Actif', active: true },
       { label: 'Risque', active: true }
@@ -53,22 +56,19 @@ export class RisqueComponent {
     this.getCurrentActifId();
     this.loadRisque();
     this.loadVulnerabilites();
-    /**
- * Form Validation
- */
+
+    // Form Validation
     this.vulnerabiliteForm = this.formBuilder.group({
       nom: ['', [Validators.required]],
       actifId: [this.currentActifId, [Validators.required]],
-  
     });
+
     this.menaceForm = this.formBuilder.group({
       nom: ['', [Validators.required]],
-     
-  
     });
 
     // Fetch Data
-    this.reviewData = reviews.reverse()
+    this.reviewData = reviews.reverse();
   }
 
   public dropzoneConfig: DropzoneConfigInterface = {
@@ -77,69 +77,47 @@ export class RisqueComponent {
     previewsContainer: false,
   };
 
-
-
-
-
   // Change Tab Content
   changeTab(tab: string) {
     this.currentTab = tab;
   }
 
-
-
-
-  // open & close chatbox
+  // Open & close chatbox
   openchatbox() {
-    document.getElementById('emailchat-detailElem')?.classList.add('d-block')
+    document.getElementById('emailchat-detailElem')?.classList.add('d-block');
   }
+  
   closechatbox() {
-    document.getElementById('emailchat-detailElem')?.classList.remove('d-block')
+    document.getElementById('emailchat-detailElem')?.classList.remove('d-block');
   }
 
-  // Edit Review
-  editReview(id: any) {
- /*
-    this.addReview?.show()
-    this.reviewForm.controls['_id'].setValue(this.reviewData[id].id);
-    this.reviewForm.controls['title'].setValue(this.reviewData[id].title);
-    this.reviewForm.controls['rate'].setValue(this.reviewData[id].rating);
-    this.reviewForm.controls['content'].setValue(this.reviewData[id].content);
-    this.reviewData[id].profile.forEach((element:any) => {
-      this.uploadedFiles.push({ 'dataURL': element, 'name': 'image', 'size': 1024, });
-    });
-    this.reviewForm.controls['img'].setValue(this.uploadedFiles);
-  */
-  }
-  getCurrentActifId(){
+  getCurrentActifId() {
     this.route.paramMap.subscribe(params => {
       this.currentActifId = params.get('id');
-      console.log(this.currentActifId); 
+      console.log(this.currentActifId);
     });
   }
+
   loadRisque() {
     this.risqueService.getActifById(this.currentActifId).subscribe((data) => {
-      this.actif=data
+      this.actif = data;
       this.risque = data.risque;
-      console.log('risque of actif',data.risque)
-   
-    }); 
-}
-
-loadVulnerabilites() {
-  this.vulnerabiliteService.getVulnerabiliteByActif(this.currentActifId).subscribe((data) => {
-    this.vulnerabilites=data
-    console.log('vulnerabilites of actif',data)
- 
-  }); 
-}
-
-checkVulnerabilite(idVulnerabilite: any) {
-  this.checkedVulnerabiliteId=idVulnerabilite;
-  console.log(idVulnerabilite)
-  this.addMenaceModal?.show()
+      console.log('risque of actif', data.risque);
+    });
   }
 
+  loadVulnerabilites() {
+    this.vulnerabiliteService.getVulnerabiliteByActif(this.currentActifId).subscribe((data) => {
+      this.vulnerabilites = data;
+      console.log('vulnerabilites of actif', data);
+    });
+  }
+
+  checkVulnerabilite(idVulnerabilite: any) {
+    this.checkedVulnerabiliteId = idVulnerabilite;
+    console.log(idVulnerabilite);
+    this.addMenaceModal?.show();
+  }
 
   saveVulnerabilite() {
     if (this.vulnerabiliteForm.valid) {
@@ -147,14 +125,12 @@ checkVulnerabilite(idVulnerabilite: any) {
       registerData.append('nom', this.vulnerabiliteForm.value.nom);
       registerData.append('actifId', this.vulnerabiliteForm.value.actifId);
 
-   
-      console.log(registerData)
       this.vulnerabiliteService.addVulnerabilite(registerData).subscribe(
         response => {
           this.vulnerabiliteForm.reset();
           this.loadVulnerabilites();
           this.addVulnerabiliteModal?.hide();
-       
+          this.toastr.success('Vulnérabilité ajoutée avec succès', 'Succès'); 
         },
         error => {
           if (error.status === 400) {
@@ -168,28 +144,26 @@ checkVulnerabilite(idVulnerabilite: any) {
           } else if (error.status === 409) {
             this.addVulnerabiliteError = error.error;
           } else {
-            this.addVulnerabiliteError = 'An unexpected error occurred during registration, try again';
+            this.addVulnerabiliteError = 'Une erreur inattendue est survenue pendant l\'inscription, essayez encore';
           }
+          this.toastr.error(this.addVulnerabiliteError || 'Erreur, veuillez réessayer', 'Erreur'); 
         }
       );
     }
-
   }
+
   saveMenace() {
-    
     if (this.menaceForm.valid) {
       const registerData = new FormData();
       registerData.append('nom', this.menaceForm.value.nom);
       registerData.append('vulnerabiliteId', this.checkedVulnerabiliteId);
 
-   
-      console.log(registerData)
       this.vulnerabiliteService.addMenace(registerData).subscribe(
         response => {
           this.menaceForm.reset();
           this.loadVulnerabilites();
           this.addMenaceModal?.hide();
-       
+          this.toastr.success('Menace ajoutée avec succès', 'Succès');
         },
         error => {
           if (error.status === 400) {
@@ -203,21 +177,54 @@ checkVulnerabilite(idVulnerabilite: any) {
           } else if (error.status === 409) {
             this.addMenaceError = error.error;
           } else {
-            this.addMenaceError = 'An unexpected error occurred during registration, try again';
+            this.addMenaceError = 'Une erreur inattendue est survenue pendant l\'inscription, essayez encore';
           }
+          this.toastr.error(this.addMenaceError || 'Erreur, veuillez réessayer', 'Erreur');
         }
       );
     }
-
-  }
-  // Delete Review
-  removeReview(id: any) {
-    this.deleteId = id
-    this.removeItemModal?.show()
   }
 
-  DeleteReview() {
-    this.reviewData.splice(this.deleteId, 1)
-    this.removeItemModal?.hide()
+  removeReview(idVul: any, idMenace: any) {
+    console.log("display the id of vulnerabilite and the id of menace" + idVul, idMenace);
+     this.vulnerabiliteId = idVul
+     this.menaceId = idMenace
+     this.removeItemModal?.show()
+  }
+
+  removeVulnerabilite(idVulnerabilite: any) {
+    console.log("display the id of vulnerabilite and the id of menace" + idVulnerabilite);
+    this.vulnerabiliteId = idVulnerabilite;
+    this.removeVulnerabiliteModal?.show();
+  }
+
+  DeleteVulnerabilite() {
+    this.vulnerabiliteService.removeVulnerabiliteFromActif(this.currentActifId, this.vulnerabiliteId).subscribe(
+      response => {
+        console.log('Vulnérabilité supprimée avec succès', response);
+        this.loadVulnerabilites();
+        this.removeItemModal?.hide();
+        this.toastr.success('Vulnérabilité supprimée avec succès', 'Succès'); // Success toast
+      },
+      error => {
+        console.error('Erreur lors de la suppression de la vulnérabilité', error);
+        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); // Error toast
+      }
+    );
+  }
+
+  DeleteMenace() {
+    this.vulnerabiliteService.removeMenaceFromVulnerabilite(this.vulnerabiliteId, this.menaceId).subscribe(
+      response => {
+        console.log('Menace supprimée avec succès', response);
+        this.loadVulnerabilites();
+        this.removeItemModal?.hide();
+        this.toastr.success('Menace supprimée avec succès', 'Succès'); // Success toast
+      },
+      error => {
+        console.error('Erreur lors de la suppression de la menace', error);
+        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); // Error toast
+      }
+    );
   }
 }

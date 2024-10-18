@@ -7,6 +7,7 @@ import { ModalDirective } from 'ngx-bootstrap/modal';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { EntrepriseService } from 'src/app/core/services/entreprise.service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
+import { ToastrService } from 'ngx-toastr'; 
 
 
 @Component({
@@ -16,14 +17,7 @@ import { AuthenticationService } from 'src/app/core/services/auth.service';
   providers: [DecimalPipe]
 })
 
-
-
-
-
-
 export class EntrepriseComponent {
-
- 
   breadCrumbItems!: Array<{}>;
   entreprises: any;
   entreprisesList: any
@@ -41,7 +35,7 @@ export class EntrepriseComponent {
   sellerChart: any;
   term: any;
   fileLogo: File | null = null;
-  constructor(private formBuilder: UntypedFormBuilder, private entrepriseService:EntrepriseService,private authService: AuthenticationService) {
+  constructor(private formBuilder: UntypedFormBuilder, private entrepriseService:EntrepriseService,private authService: AuthenticationService, private toastr: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -111,7 +105,7 @@ export class EntrepriseComponent {
       this.fileLogo = null;
        }
  
-  // Load selected entreprise data into the form
+ 
   editEntreprise(id: any) {
     this.entrepriseService.getEntrepriseById(id).subscribe((entreprise: any) => {
       this.editEntrepriseId = id;
@@ -124,8 +118,6 @@ export class EntrepriseComponent {
       this.editEntrepriseModal?.show();
     });
   }
-
-  // Method to update entreprise details
   updateEntreprise() {
     this.submitted = true;
     if (this.entrepriseForm.valid) {
@@ -140,12 +132,14 @@ export class EntrepriseComponent {
 
       this.entrepriseService.editEntreprise(this.editEntrepriseId, updateData).subscribe(
         response => {
+          this.toastr.success('Entreprise mise à jour avec succès!', 'Succès');
           console.log('Entreprise updated successfully:', response);
           this.loadEntreprises();
           this.editEntrepriseModal?.hide();
           this.fileLogo = null;
         },
         error => {
+          this.toastr.error('Erreur lors de la mise à jour de l\'entreprise.', 'Erreur');
           console.error('Error updating entreprise:', error);
         }
       );
@@ -167,7 +161,7 @@ export class EntrepriseComponent {
       }
       this.entrepriseService.addEntreprise(registerData).subscribe(
         response => {
-         
+          this.toastr.success('Entreprise ajoutée avec succès!', 'Succès');
           console.log('Entreprise added successfully:', response);
           setTimeout(() => {
             this.entrepriseForm.reset();
@@ -182,19 +176,16 @@ export class EntrepriseComponent {
         error => {
           if (error.status === 400) {
             let errorMessage = '';
-              for (const field in error.error) {
-                if (error.error.hasOwnProperty(field)) {
-                  errorMessage += `./ ${error.error[field]} <br>`;
-  
-                }
+            for (const field in error.error) {
+              if (error.error.hasOwnProperty(field)) {
+                errorMessage += `./ ${error.error[field]} <br>`;
               }
-           
+            }
             this.addEntrepriseError = errorMessage.trim();
-          }else if(error.status === 409){
-                this.addEntrepriseError=error.error
-          }
-           else {
-            this.addEntrepriseError = 'An unexpected error occurred during registration ,try again';
+            this.toastr.error(this.addEntrepriseError, 'Erreur');
+          } else {
+            this.addEntrepriseError = 'Une erreur inattendue est survenue lors de l\'enregistrement, réessayez';
+            this.toastr.error(this.addEntrepriseError, 'Erreur');
           }
         }
       )
@@ -203,7 +194,6 @@ export class EntrepriseComponent {
         this.entrepriseForm.reset();
       }, 1000);
       this.fileLogo=null;
-      //this.uploadedFiles = [];
       this.addEntrepriserModal?.hide()
     }
   }
@@ -218,9 +208,11 @@ export class EntrepriseComponent {
 
   deleteEntreprise() {
     this.entrepriseService.removeEntreprise(this.deleteId).subscribe(data=>{
+      this.toastr.success('Entreprise supprimée avec succès!', 'Succès');
       this.loadEntreprises();
       this.removeItemModal?.hide()
     },error=>{
+      this.toastr.error('Erreur lors de la suppression de l\'entreprise.', 'Erreur');
       console.log(error)
     });
     

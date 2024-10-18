@@ -26,4 +26,10 @@ export class VulnerabiliteService {
   public addMenace(data:any):Observable<any> {
     return this.http.post(API_URL+VULNERABILITE+"add-menace",data);
   }
+  public removeMenaceFromVulnerabilite(vulnerabiliteId:any,menaceId:any):Observable<any> {
+    return this.http.delete(API_URL+VULNERABILITE+vulnerabiliteId+"/remove-menace/"+menaceId);
+  }
+  public removeVulnerabiliteFromActif(actifId:any,vulnerabiliteId:any):Observable<any> {
+    return this.http.delete(API_URL+VULNERABILITE+actifId+"/remove-vulnerabilite/"+vulnerabiliteId);
+  }
 }

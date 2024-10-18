@@ -1,19 +1,9 @@
-
-
-
-
-
-
 import { Component, ViewChild } from '@angular/core';
-
-// Get Modal
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-
-import { addticketlistData, deleteticketlistData, fetchsupporticketsData, fetchticketlistData, updateticketlistData } from 'src/app/store/Tickets/ticket.actions';
-
+import { ToastrService } from 'ngx-toastr'; 
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { ProjetService } from 'src/app/core/services/projet.service';
 import { ActivatedRoute } from '@angular/router';
@@ -50,8 +40,7 @@ export class ProjetComponent {
   tooltipPosition: number = 0;
   currentDepartementId!: any;
   constructor(private formBuilder: UntypedFormBuilder, public datepipe:DatePipe,
-    private projetService:ProjetService,private route: ActivatedRoute,private authService: AuthenticationService) {
-  }
+    private projetService:ProjetService,private route: ActivatedRoute,private authService: AuthenticationService,private toastr: ToastrService) {}
 
   ngOnInit(): void {
     /**
@@ -146,7 +135,7 @@ export class ProjetComponent {
       this.projetService.addProjet(registerData).subscribe(
         response => {
           console.log('Projet added successfully:', response);
-  
+          this.toastr.success('Projet ajouté avec succès!', 'Succès');
           setTimeout(() => {
             this.projetForm.reset();  
             this.loadProjets();      
@@ -154,24 +143,28 @@ export class ProjetComponent {
           }, 1000);
         },
         error => {
-          
-          if (error.status === 400) {
-            let errorMessage = '';
-            for (const field in error.error) {
-              if (error.error.hasOwnProperty(field)) {
-                errorMessage += `./ ${error.error[field]} <br>`;
+            if (error.status === 400) {
+              let errorMessage = '';
+              for (const field in error.error) {
+                if (error.error.hasOwnProperty(field)) {
+                  errorMessage += `./ ${error.error[field]} <br>`;
+                }
               }
+              this.addProjetError = errorMessage.trim();
+              
+              // Show error toast
+              this.toastr.error('Une erreur s\'est produite lors de l\'ajout du projet.', 'Erreur');
+            } else if (error.status === 409) {
+              this.addProjetError = error.error;
+              
+              // Show conflict error toast
+              this.toastr.warning('Conflit de données lors de l\'ajout du projet.', 'Avertissement');
+            } else {
+              this.addProjetError = 'Une erreur inattendue s\'est produite lors de l\'inscription du projet, veuillez réessayer.';
+              
+              // Show generic error toast
+              this.toastr.error('Une erreur inattendue s\'est produite. Veuillez réessayer.', 'Erreur');
             }
-            this.addProjetError = errorMessage.trim();
-          } 
-          // Handle conflict errors (status 409)
-          else if (error.status === 409) {
-            this.addProjetError = error.error;
-          }
-          // Handle other unexpected errors
-          else {
-            this.addProjetError = 'An unexpected error occurred during project registration, please try again.';
-          }
         }
       );
     }
@@ -223,8 +216,11 @@ export class ProjetComponent {
       this.projetService.deleteProjet(this.deleteID).subscribe(data=>{
         this.loadProjets();
         this.deleteRecordModal?.hide();
+        this.toastr.success('Projet supprimé avec succès!', 'Succès'); 
+
       },error=>{
-        console.log(error)
+        this.toastr.error('Une erreur s\'est produite lors de la suppression du projet.', 'Erreur'); 
+
       });
     }
   
@@ -239,7 +235,7 @@ export class ProjetComponent {
     } else {
       this.direction = 'asc';
     }
-    const sortedArray = [...this.projets]; // Create a new array
+    const sortedArray = [...this.projets]; 
     sortedArray.sort((a, b) => {
       const res = this.compare(a[column], b[column]);
       return this.direction === 'asc' ? res : -res;
@@ -250,19 +246,17 @@ export class ProjetComponent {
     return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
   }
 
-
-  // filterdata
   filterdata() {
     if (this.term) {
       this.projets = this.projetList.filter((es: any) => es.nom.toLowerCase().includes(this.term.toLowerCase()))
     } else {
       this.projets = this.projetList.slice(0, 10);
     }
-    // noResultElement
+
     this.updateNoResultDisplay();
   }
 
-  // no result 
+
   updateNoResultDisplay() {
     const noResultElement = document.querySelector('.noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement;
@@ -276,8 +270,7 @@ export class ProjetComponent {
       paginationElement.classList.remove('d-none')
     }
   }
-
-  // pagechanged
+  
   pageChanged(event: PageChangedEvent): void {
     const startItem = (event.page - 1) * event.itemsPerPage;
     this.endItem = event.page * event.itemsPerPage;

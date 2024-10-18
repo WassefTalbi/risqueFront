@@ -1,22 +1,18 @@
 
 
-import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ViewChild, ViewChildren } from '@angular/core';
 
 import { Observable } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
-
-
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
-import { cloneDeep } from 'lodash';
 import { DepartementService } from 'src/app/core/services/departement.service';
 import { ActivatedRoute } from '@angular/router';
 import { EntrepriseService } from 'src/app/core/services/entreprise.service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
-
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-seller-overview',
@@ -46,8 +42,8 @@ export class DepartementComponent {
   editDepartement: any;
   fileLogo: File | null = null; 
 
-  constructor(private formBuilder: UntypedFormBuilder, private departementService:DepartementService
-    ,private entrepriseService:EntrepriseService,private route: ActivatedRoute,private authService: AuthenticationService) {
+  constructor(private formBuilder: UntypedFormBuilder, private departementService:DepartementService,
+    private entrepriseService:EntrepriseService,private route: ActivatedRoute,private authService: AuthenticationService, private toastr: ToastrService) {
   }
 
 
@@ -144,13 +140,7 @@ export class DepartementComponent {
   compare(v1: string | number, v2: string | number) {
     return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
   }
- 
 
- 
-
- 
-
-  // add Departement
   saveDepartement() {
     if (this.departementForm.valid) {
       const registerData = new FormData();
@@ -164,9 +154,10 @@ export class DepartementComponent {
   
       this.departementService.addDepartement(registerData, this.currentEntrepriseId).subscribe(
         response => {
-          this.departementForm.reset();
-          this.loadDepartements();
           this.addDepartementModal?.hide();
+          this.toastr.success('Département ajouté avec succès!', 'Succès');
+          this.loadDepartements();
+          this.departementForm.reset();
           this.fileLogo = null;
         },
         error => {
@@ -178,10 +169,10 @@ export class DepartementComponent {
               }
             }
             this.addDepartementError = errorMessage.trim();
-          } else if (error.status === 409) {
-            this.addDepartementError = error.error;
-          } else {
-            this.addDepartementError = 'An unexpected error occurred during registration, try again';
+            this.toastr.error(this.addDepartementError, 'Erreur');
+          }  else {
+            this.addDepartementError = 'Une erreur inattendue est survenue lors de l\'enregistrement, réessayez.';
+            this.toastr.error(this.addDepartementError, 'Erreur');
           }
         }
       );
@@ -190,7 +181,7 @@ export class DepartementComponent {
   
 
   checkedValGet: any[] = [];
-  // The master checkbox will check/ uncheck all items
+
   checkUncheckAll(ev: any) {
     this.departementList.forEach((x: { state: any; }) => x.state = ev.target.checked)
     var checkedVal: any[] = [];
@@ -205,7 +196,7 @@ export class DepartementComponent {
     checkedVal.length > 0 ? document.getElementById("remove-actions")?.classList.remove('d-none') : document.getElementById("remove-actions")?.classList.add('d-none');
   }
 
-  // Select Checkbox value Get
+ 
   onCheckboxChange(e: any) {
     var checkedVal: any[] = [];
     var result
@@ -219,42 +210,41 @@ export class DepartementComponent {
     checkedVal.length > 0 ? document.getElementById("remove-actions")?.classList.remove('d-none') : document.getElementById("remove-actions")?.classList.add('d-none');
   }
 
-
-
-  // Delete Product
   removeItem(id: any) {
     this.deleteID = id
     this.deleteRecordModal?.show()
   }
 
-  // deleteddata
-  deleteData(id: any) {
+  deleteData() {
 
- 
-    this.deleteRecordModal?.hide();
-    this.masterSelected = false
+    this.departementService.removeDepartement(this.deleteID).subscribe(
+      response => {
+        this.toastr.success('Département supprimé avec succès!', 'Succès');
+        this.loadDepartements();
+        this.deleteRecordModal?.hide();
+        this.masterSelected = false;
+      },
+      error => {
+        this.toastr.error('Erreur lors de la suppression du département.', 'Erreur');
+      }
+    );
   }
 
-  // pagechanged
   pageChanged(event: PageChangedEvent): void {
     const startItem = (event.page - 1) * event.itemsPerPage;
     this.endItem = event.page * event.itemsPerPage;
     this.departementList = this.departements.slice(startItem, this.endItem);
   }
 
-
-  // filterdata
   filterdata() {
     if (this.term) {
       this.departementList = this.departements.filter((el: any) => el.nom.toLowerCase().includes(this.term.toLowerCase()) || el.nom.toLowerCase().includes(this.term.toLowerCase()))
     } else {
       this.departementList = this.departements.slice(0, 10);
     }
-    // noResultElement
     this.updateNoResultDisplay();
   }
 
-  // no result 
   updateNoResultDisplay() {
     const noResultElement = document.querySelector('.noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement;

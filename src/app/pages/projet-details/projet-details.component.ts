@@ -1,71 +1,55 @@
-
-
-
 import { Component, ViewChild } from '@angular/core';
 import { SlickCarouselComponent } from 'ngx-slick-carousel';
-// Data Get
-
-import { reviews,details } from '../ecommerce/product-details/data';
-
-
-// Swiper
-
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-import { HttpClient } from '@angular/common/http';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { DecimalPipe } from '@angular/common';
 import { reviewsModel } from '../ecommerce/product-details/product-details.model';
 import { ProjetService } from 'src/app/core/services/projet.service';
 import { ActivatedRoute } from '@angular/router';
 import { RiskMatrixCell } from './RiskMatrixCell';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-projet-details',
   templateUrl: './projet-details.component.html',
-  styleUrl: './projet-details.component.scss',
+  styleUrls: ['./projet-details.component.scss'],
   providers: [DecimalPipe]
-
-
 })
-
-// Product Detail Component
 export class ProjetDetailsComponent {
-
   // bread crumb items
   breadCrumbItems!: Array<{}>;
   reviewForm!: UntypedFormGroup;
   productdetail: any;
   reviewData!: reviewsModel[];
-  actifsInProject!:any[]
-  actifsNotInProject!:any[]
+  actifsInProject!: any[];
+  actifsNotInProject!: any[];
   selectedActifs: any[] = [];
   submitted: boolean = false;
   deleteId: any;
-  currentProjetId!: string|null;
-  nbrActifInProject!:number
+  currentProjetId!: string | null;
+  nbrActifInProject!: number;
   projectRisk!: any;
   matrixCells: RiskMatrixCell[] = [];
   files: File[] = [];
 
-  // @ViewChild('usefulSwiper', { static: false }) usefulSwiper?: SwiperComponent;
   @ViewChild('AssigningActif', { static: false }) AssigningActif?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   @ViewChild('slickModal') slickModal!: SlickCarouselComponent;
-  constructor(private formBuilder: UntypedFormBuilder, private projetService:ProjetService,private route: ActivatedRoute) {
-  }
+
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private projetService: ProjetService,
+    private route: ActivatedRoute,
+    private toastr: ToastrService 
+  ) {}
+
   ngOnInit(): void {
-    /**
-     * BreadCrumb
-     */
     this.breadCrumbItems = [
       { label: 'Projet' },
       { label: 'Configuration', active: true }
-    ]; 
+    ];
 
-    /**
-     * Form Validation
-     */
     this.reviewForm = this.formBuilder.group({
       _id: [''],
       title: ['', [Validators.required]],
@@ -74,16 +58,14 @@ export class ProjetDetailsComponent {
       img: ['']
     });
 
-    this.getCurrentProjectId()
-    this.loadActifsInProject()
-    this.loadActifsNotInProject()
+    this.getCurrentProjectId();
+    this.loadActifsInProject();
+    this.loadActifsNotInProject();
     this.loadProjetRisque();
     this.loadRiskMatrix();
- 
   }
 
   slideConfig = {
-    // Configuration options for the ngx-slick-carousel
     infinite: true,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -91,24 +73,23 @@ export class ProjetDetailsComponent {
   };
 
   slidesConfig = {
-    // Configuration options for the ngx-slick-carousel
     infinite: true,
     slidesToShow: 4,
     slidesToScroll: 1,
     autoplay: true,
-  }
+  };
 
   slickChange(event: any) {
-    const swiper = document.querySelectorAll('.swiperlist')
+    const swiper = document.querySelectorAll('.swiperlist');
   }
 
   slidePreview(id: any, event: any) {
-    const swiper = document.querySelectorAll('.swiperlist')
+    const swiper = document.querySelectorAll('.swiperlist');
     swiper.forEach((el: any) => {
-      el.classList.remove('swiper-slide-thumb-active')
-    })
-    event.target.closest('.swiperlist').classList.add('swiper-slide-thumb-active')
-    this.slickModal.slickGoTo(id)
+      el.classList.remove('swiper-slide-thumb-active');
+    });
+    event.target.closest('.swiperlist').classList.add('swiper-slide-thumb-active');
+    this.slickModal.slickGoTo(id);
   }
 
   public dropzoneConfig: DropzoneConfigInterface = {
@@ -117,35 +98,32 @@ export class ProjetDetailsComponent {
     previewsContainer: false,
   };
 
-
-  getCurrentProjectId(){
+  getCurrentProjectId() {
     this.route.paramMap.subscribe(params => {
       this.currentProjetId = params.get('id');
-     
     });
   }
 
   loadActifsInProject() {
     this.projetService.getActifsInProject(this.currentProjetId).subscribe((data) => {
-      console.log("actifs In Project",data)
-      this.actifsInProject = data
-      this.nbrActifInProject= data.length
-
+      console.log("actifs In Project", data);
+      this.actifsInProject = data;
+      this.nbrActifInProject = data.length;
     });
-   
   }
+
   loadActifsNotInProject() {
     this.projetService.getActifsNotInProject(this.currentProjetId).subscribe((data) => {
-      console.log("actifs Not In Project",data)
+      console.log("actifs Not In Project", data);
       this.actifsNotInProject = data;
-
     });
-   
   }
+
   openAssignActifModal() {
-    this.loadActifsNotInProject(); 
-    this.AssigningActif?.show();   
+    this.loadActifsNotInProject();
+    this.AssigningActif?.show();
   }
+
   toggleSelection(actif: any) {
     actif.selected = !actif.selected;
     if (actif.selected) {
@@ -154,6 +132,7 @@ export class ProjetDetailsComponent {
       this.selectedActifs = this.selectedActifs.filter(a => a.id !== actif.id);
     }
   }
+
   assignActifsToProject() {
     if (this.selectedActifs.length > 0) {
       const selectedActifIds = this.selectedActifs.map(actif => actif.id);
@@ -164,20 +143,21 @@ export class ProjetDetailsComponent {
           console.log('Actifs assigned successfully', response);
           this.selectedActifs.forEach(actif => actif.selected = false);
           this.selectedActifs = [];
-          this.loadActifsInProject()
-          this.nbrActifInProject
+          this.loadActifsInProject();
           this.loadProjetRisque();
           this.loadRiskMatrix();
-          this.AssigningActif?.hide()
-          this.loadActifsNotInProject()
-         
+          this.AssigningActif?.hide();
+          this.loadActifsNotInProject();
+          this.toastr.success('Actifs assignés avec succès!', 'Succès'); // Success toast
         },
         error => {
           console.error('Error assigning actifs', error);
+          this.toastr.error('Erreur lors de l\'assignation des actifs, veuillez réessayer.', 'Erreur'); // Error toast
         }
       );
     } else {
       console.log('No actifs selected.');
+      this.toastr.warning('Aucun actif sélectionné.', 'Avertissement'); // Warning toast
     }
   }
 
@@ -186,7 +166,6 @@ export class ProjetDetailsComponent {
     this.projetService.getProjetRisque(projetId).subscribe(
       (risk) => {
         this.projectRisk = risk;
-
         console.log('Project Risk:', risk);
       },
       (error) => {
@@ -195,30 +174,28 @@ export class ProjetDetailsComponent {
     );
   }
 
-
   loadRiskMatrix(): void {
     this.projetService.getRiskMatrix(this.currentProjetId).subscribe(
       (data: RiskMatrixCell[]) => {
-        console.log("RiskMatrixCell ",data)
-        this.matrixCells = data
+        console.log("RiskMatrixCell ", data);
+        this.matrixCells = data;
       },
       (error) => {console.error('Error fetching risk matrix', error)}
     );
   }
 
   getMatrixCellCount(likelihood: number, impact: number): number {
-     const cell = this.matrixCells.find(c => c.likelihood === likelihood && c.impact === impact);
+    const cell = this.matrixCells.find(c => c.likelihood === likelihood && c.impact === impact);
     return cell ? cell.count : 0;
   }
+
   getCellColor(potential: number, impact: number): string {
-    
     const greenCells = [
       [1, 1], [2, 1], [3, 1], [4, 1],
       [1, 2], [2, 2], [3, 2],
       [1, 3], [2, 3],
       [1, 4]
     ];
-  
 
     const warningCells = [
       [1, 5], [1, 6],
@@ -228,8 +205,7 @@ export class ProjetDetailsComponent {
       [5, 1], [5, 2], [5, 3],
       [6, 1], [6, 2]
     ];
-  
-    
+
     if (greenCells.some(cell => cell[0] === potential && cell[1] === impact)) {
       return 'green'; 
     } else if (warningCells.some(cell => cell[0] === potential && cell[1] === impact)) {
@@ -238,31 +214,27 @@ export class ProjetDetailsComponent {
       return 'red'; 
     }
   }
-  
 
   // Delete Review
   removeReview(id: any) {
-    this.deleteId = id
-    this.removeItemModal?.show()
+    this.deleteId = id;
+    this.removeItemModal?.show();
   }
 
   DeleteReview() {
-    this.projetService.removeActifFromProject(this.currentProjetId,this.deleteId).subscribe(
+    this.projetService.removeActifFromProject(this.currentProjetId, this.deleteId).subscribe(
       response => {
         console.log('Actifs removed successfully', response);
-        this.loadActifsInProject()
-        this.loadRiskMatrix()
-        this.loadProjetRisque()
-        this.nbrActifInProject
-        this.removeItemModal?.hide()
-       
+        this.loadActifsInProject();
+        this.loadRiskMatrix();
+        this.loadProjetRisque();
+        this.removeItemModal?.hide();
+        this.toastr.success('Actif supprimé avec succès!', 'Succès'); 
       },
       error => {
         console.error('Error removing actif', error);
+        this.toastr.error('Erreur lors de la suppression de l\'actif, veuillez réessayer.', 'Erreur'); 
       }
     );
-
-   
   }
-
 }

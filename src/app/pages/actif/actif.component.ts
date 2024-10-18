@@ -1,17 +1,14 @@
 
 import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-
 import { DecimalPipe } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { Store } from '@ngrx/store';
-import { addcourcegridData, deletecourcegridData, fetchcourcegriddata, updatecourcegridData } from 'src/app/store/Learning-cources/cources.action';
-import { selectgridData } from 'src/app/store/Learning-cources/cources.selector';
-import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { CategorieService } from 'src/app/core/services/categorie.service';
 import { ActifService } from 'src/app/core/services/actif.service';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-actif',
@@ -21,10 +18,9 @@ import { AuthenticationService } from 'src/app/core/services/auth.service';
   providers: [DecimalPipe]
 })
 
-// List Component
+
 export class ActifComponent {
 
-  // bread crumb items
   breadCrumbItems!: Array<{}>;
   actifForm!: UntypedFormGroup;
   risqueForm!: UntypedFormGroup;
@@ -68,9 +64,7 @@ export class ActifComponent {
   editData: any;
 
   constructor(private formBuilder: UntypedFormBuilder, public store: Store,private authService: AuthenticationService,
-                 private categorieService:CategorieService,private actifService:ActifService,private fb: FormBuilder) {
-
-  }
+     private categorieService:CategorieService,private actifService:ActifService,private fb: FormBuilder, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.initializeForms();
@@ -79,31 +73,18 @@ export class ActifComponent {
     console.log('role in the actif ',this.role);
   
 
-    /**
-     * BreadCrumb
-     */
     this.breadCrumbItems = [
       { label: 'Actifs', active: true },
      
     ];
 
-    // Fetch Data
-
-    // Fetch Data
+    
     setTimeout(() => {
       this.loadCategories();
       this.loadActifs()
-      this.store.dispatch(fetchcourcegriddata());
-      this.store.select(selectgridData).subscribe((data) => {
-        this.listData = data;
-        this.gridlist = data;
-      });
       document.getElementById('elmLoader')?.classList.add('d-none')
     }, 1000)
 
-    /**
-     * Form Validation
-     */
     this.actifForm = this.formBuilder.group({
       nom: [''],
       logo:  [null, Validators.required],
@@ -148,14 +129,11 @@ export class ActifComponent {
     this.currentForm = this.fb.group({});
   }
 
-  /**
- * Returns form
- */
+ 
   get form() {
     return this.actifForm.controls;
   }
 
-  // File Upload
   public dropzoneConfig: DropzoneConfigInterface = {
     clickable: true,
     addRemoveLinks: true,
@@ -204,7 +182,7 @@ export class ActifComponent {
 
 
 
-  // File Remove
+
   removeFile(event: any) {
     this.uploadedFiles.splice(this.uploadedFiles.indexOf(event), 1);
   }
@@ -213,10 +191,9 @@ export class ActifComponent {
     this.editActifModal?.hide()
     this.actifForm.reset()
     this.fileLogo = null;
-     }
-
-  // Edit Actif
-    editActif(id: any) {
+   }
+   
+  editActif(id: any) {
       this.actifService.getActifById(id).subscribe((actif: any) => {
         this.editActifId = id;
         this.actifForm.patchValue({
@@ -230,10 +207,9 @@ export class ActifComponent {
         });
         this.editActifModal?.show();
       });
-    }
+  }
   
-    // Method to update actif details
-    updateActif() {
+  updateActif() {
       this.submitted = true;
       if (this.actifForm.valid) {
         const updateData = new FormData();
@@ -246,22 +222,21 @@ export class ActifComponent {
         if (this.fileLogo) {
           updateData.append('logo', this.fileLogo);
         }
-  
         this.actifService.editActif(this.editActifId, updateData).subscribe(
           response => {
+            this.toastr.success('Actif mis à jour avec succès !', 'Succès');  
             console.log('actif updated successfully:', response);
             this.loadActifs();
            this.editActifModalHide();
           },
           error => {
+            this.toastr.error('Erreur lors de la mise à jour de l\'actif.', 'Erreur'); 
             console.error('Error updating actif:', error);
           }
         );
       }
-    }
+  }
 
-
-  // Delete Product
   removeItem(id: any) {
     this.deleteID = id
     this.deleteRecordModal?.show()
@@ -269,17 +244,15 @@ export class ActifComponent {
 
   confirmDelete() {
     this.actifService.removeActif(this.deleteID).subscribe(data=>{
+      this.toastr.success('Actif supprimé avec succès !', 'Succès');
       this.loadActifs();
       this.deleteRecordModal?.hide()}
       ,error=>{
+      this.toastr.error('Erreur lors de la suppression de l\'actif.', 'Erreur');
       console.log(error)
     });
-   
   }
 
- 
-
-  // filterdata
   filterdata() {
     if (this.term) {
       this.actifs = this.listactif.filter((el: any) => el.nom.toLowerCase().includes(this.term.toLowerCase()))
@@ -288,6 +261,7 @@ export class ActifComponent {
     }
     this.updateNoResultDisplay();
   }
+
   updateNoResultDisplay() {
     const noResultElement = document.getElementById('noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement
@@ -299,7 +273,6 @@ export class ActifComponent {
       paginationElement.classList.remove('d-none')
     }
   }
-
 
   showModal(): void {
     this.currentStep = 0;
@@ -332,6 +305,7 @@ export class ActifComponent {
       this.markFormGroupTouched(this.currentStep === 0 ? this.actifForm : this.risqueForm);
     }
   }
+
   markFormGroupTouched(formGroup: UntypedFormGroup): void {
     Object.values(formGroup.controls).forEach(control => {
       if (control instanceof UntypedFormGroup) {
@@ -364,6 +338,7 @@ export class ActifComponent {
       this.actifService.addActif(registerData).subscribe(
         response => {
           this.hideModal();
+          this.toastr.success('Actif ajouté avec succès !', 'Succès'); 
           this.actifForm.reset();
           this.risqueForm.reset();
           this.fileLogo = null;
@@ -372,6 +347,8 @@ export class ActifComponent {
           
         },
         error => {
+          this.toastr.error('Erreur lors de l\'ajout de l\'actif.', 'Erreur'); 
+
           console.log("Error", error);
         }
       );
