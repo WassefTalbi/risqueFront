@@ -191,7 +191,7 @@ export class ActifComponent {
     this.editActifModal?.hide()
     this.actifForm.reset()
     this.fileLogo = null;
-   }
+   } 
    
   editActif(id: any) {
       this.actifService.getActifById(id).subscribe((actif: any) => {

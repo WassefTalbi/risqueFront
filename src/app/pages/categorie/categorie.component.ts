@@ -5,9 +5,8 @@ import { DecimalPipe } from '@angular/common';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
-
-
 import { CategorieService } from 'src/app/core/services/categorie.service';
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-categorie',
@@ -21,6 +20,7 @@ export class CategorieComponent {
   // bread crumb items
   breadCrumbItems!: Array<{}>;
   categories: any;
+  editCategoryId:any
   files: File[] = [];
   categoryForm!: UntypedFormGroup;
   submitted = false;
@@ -29,10 +29,11 @@ export class CategorieComponent {
   fileLogo: File | null = null;
   addCategorieError: string | null = null;
   @ViewChild('addCategoryModal', { static: false }) addCategoryModal?: ModalDirective;
+  @ViewChild('editCategoryModal', { static: false }) editCategoryModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   deleteId: any;
   colors = ['primary', 'success', 'danger', 'warning', 'info', 'secondary', 'dark'];
-  constructor(private categorieService:CategorieService, private formBuilder: UntypedFormBuilder,) {
+  constructor(private categorieService:CategorieService, private formBuilder: UntypedFormBuilder,private toastr: ToastrService ) {
   }
 
 
@@ -67,7 +68,6 @@ export class CategorieComponent {
     this.categorieService.getCategories().subscribe((data) => {
       console.log(data)
       this.categories = data.map((categorie: any) => {
-        // Assign a random color to each category
         categorie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
         return categorie;
       });
@@ -76,7 +76,6 @@ export class CategorieComponent {
 
   }
 
-  // File Upload
   public dropzoneConfig: DropzoneConfigInterface = {
     clickable: true,
     addRemoveLinks: true,
@@ -84,9 +83,6 @@ export class CategorieComponent {
   };
 
 
-
-
- 
   onUploadSuccess(event: any) {
     setTimeout(() => {
       this.fileLogo = event.target.files[0];
@@ -98,62 +94,90 @@ export class CategorieComponent {
     this.fileLogo=null;
   
   }
-
-  // Add Category
+  saveCategoryModalHide(){
+    this.addCategoryModal?.hide(); 
+    this.categoryForm.reset();
+    this.fileLogo = null;
+  }
   saveCategory() {
     if (this.categoryForm.valid) {
       const registerData = new FormData();
       registerData.append('nom', this.categoryForm.value.nom);
-   
+  
       if (this.fileLogo) {
         registerData.append('logo', this.fileLogo);
       }
+  
       this.categorieService.addCategorie(registerData).subscribe(
         response => {
-         
-          console.log('categorie added successfully:', response);
-          setTimeout(() => {
-            this.categoryForm.reset();
-            this.loadCategories();
-            this.addCategoryModal?.hide();
-          }, 1000);
+          console.log('Categorie added successfully:', response);
+          this.addCategoryModal?.hide();
+          this.toastr.success('Catégorie ajoutée avec succès', 'Succès');
+          this.categoryForm.reset();
           this.fileLogo = null;
-         
-          
-          
+        
+          this.loadCategories();
         },
         error => {
           if (error.status === 400) {
             let errorMessage = '';
-              for (const field in error.error) {
-                if (error.error.hasOwnProperty(field)) {
-                  errorMessage += `./ ${error.error[field]} <br>`;
-  
-                }
+            for (const field in error.error) {
+              if (error.error.hasOwnProperty(field)) {
+                errorMessage += `./ ${error.error[field]} <br>`;
               }
-           
+            }
             this.addCategorieError = errorMessage.trim();
-          }else if(error.status === 409){
-                this.addCategorieError=error.error
+          } else {
+            this.addCategorieError = 'Une erreur inattendue est survenue, essayez encore';
           }
-           else {
-            this.addCategorieError = 'An unexpected error occurred during registration ,try again';
-          }
+  
+          this.toastr.error(this.addCategorieError || 'Erreur, veuillez réessayer', 'Erreur');
         }
-      )
-       
-      setTimeout(() => {
-        this.categoryForm.reset();
-      }, 1000);
-      this.fileLogo=null;
-      //this.uploadedFiles = [];
-      this.addCategoryModal?.hide()
+      );
     }
-   
   }
 
 
-  // no result 
+
+  editCategoryModalHide(){
+    this.editCategoryModal?.hide();
+    this.categoryForm.reset();
+    this.fileLogo = null;
+  }
+
+  editCategory(id: any) {
+    this.categorieService.getActifById(id).subscribe((actif: any) => {
+      this.editCategoryId = id;
+      this.categoryForm.patchValue({
+        nom: actif.nom,
+      });
+      this.editCategoryModal?.show();
+    });
+}
+
+updateCategory() {
+    this.submitted = true;
+    if (this.categoryForm.valid) {
+      const updateData = new FormData();
+      updateData.append('nom', this.categoryForm.value.nom);
+      if (this.fileLogo) {
+        updateData.append('logo', this.fileLogo);
+      }
+      this.categorieService.editCategorie(this.editCategoryId, updateData).subscribe(
+        response => {
+          this.toastr.success('categorie mis à jour avec succès !', 'Succès');  
+          console.log('categorie updated successfully:', response);
+          this.loadCategories();
+         this.editCategoryModal?.hide();
+        },
+        error => {
+          this.toastr.error('Erreur lors de la mise à jour de categorie.', 'Erreur'); 
+          console.error('Error updating actif:', error);
+        }
+      );
+    }
+}
+  
   updateNoResultDisplay() {
     const noResultElement = document.querySelector('.noresult') as HTMLElement;
     const paginationElement = document.getElementById('pagination-element') as HTMLElement

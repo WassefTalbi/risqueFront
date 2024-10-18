@@ -7,7 +7,7 @@
      
     </div><!--end col-->
     <div class="col-md-auto">
-        <a href="javascript:void(0);" class="btn btn-secondary" (click)="addCategoryModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Add Category</a>
+        <a href="javascript:void(0);" class="btn btn-secondary" (click)="addCategoryModal.show()"><i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Categorie</a>
     </div><!--end col-->
 </div>
  
@@ -17,6 +17,7 @@
         <div class="card card-animate text-center bg-{{categorie.color}}-subtle border border-{{categorie.color}}-subtle">
             <div class="card-body p-4">
                 <div class="text-end mb-3">
+                    
                     <button type="button" class="btn-close text-end" (click)="removeCategorie(categorie.id)"></button>
                 </div>
                 <div class="avatar-md mx-auto mb-4">
@@ -28,6 +29,9 @@
                     <h5 class="text-truncate">{{categorie.nom}}</h5>
             
                 <p class="text-muted mb-0">contient la liste des actifs de categorie {{categorie.nom}}</p>
+                <button type="button" class="btn p-0 ms-2" (click)="editCategory(categorie.id)">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
             </div>
         </div><!--end card-->
     </div><!--end col-->
@@ -56,7 +60,7 @@
         <div class="modal-content border-0">
             <div class="modal-header bg-secondary p-3">
                 <h5 class="modal-title text-white" id="addCategoryLabel">Ajouter Categorie</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="addCategoryModal.hide()"></button>
+                <button type="button" class="btn-close btn-close-white" (click)="saveCategoryModalHide()"></button>
             </div>
 
             <form (ngSubmit)="saveCategory()" [formGroup]="categoryForm" class="tablelist-form" novalidate autocomplete="off">
@@ -86,8 +90,53 @@
                 </div>
                 <div class="modal-footer">
                     <div class="hstack gap-2 justify-content-end">
-                        <button type="button" class="btn btn-ghost-danger" (click)="addCategoryModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="button" class="btn btn-ghost-danger" (click)="saveCategoryModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                         <button type="submit" class="btn btn-primary" id="add-btn">Ajouter Categorie</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+</div><!--end add Property modal-->
+
+<div bsModal #editCategoryModal="bs-modal" class="modal fade" id="editCategoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-secondary p-3">
+                <h5 class="modal-title text-white" id="addCategoryLabel">Modifier Categorie</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="editCategoryModalHide()"></button>
+            </div>
+
+            <form (ngSubmit)="updateCategory()" [formGroup]="categoryForm" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div>
+                        <div class="mb-3">
+                            <label class="form-label">Categorie Logo <span class="text-danger">*</span></label>
+                        
+                            <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+                            <div *ngIf="categoryForm.get('logo')?.hasError('required') && categoryForm.get('logo')?.touched" class="text-danger">
+                             categorie logo is required.
+                            </div>
+                          
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entreprise-Nom" class="form-label">Categorie Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categorie-Nom" formControlName="nom" placeholder="categorie nom" required>
+                            <div *ngIf="categoryForm.get('nom')?.hasError('required') && categoryForm.get('nom')?.touched" class="text-danger">
+                                categorie Nom is required.
+                              </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="editCategoryModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn">Modifier Categorie</button>
                     </div>
                 </div>
             </form>
@@ -106,14 +155,13 @@
                 <div class="mt-2 text-center">
                     <i class="ph-trash display-5 text-danger"></i>
                     <div class="mt-4 pt-2 mx-4 mx-sm-5">
-                        <h4>Are you sure ?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to remove this categorie ?</p>
+                        <h4 class="mb-1">Êtes-vous sûr ?</h4>
+                        <p class="text-muted mx-4 mb-0">Êtes-vous sûr de vouloir supprimez cette categorie ?</p>
                     </div>
                 </div>
                 <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" (click)="removeItemModal.hide()">Close</button>
-                    <button type="button" class="btn w-sm btn-danger" id="remove-element" (click)="deleteCategorie()">Yes,
-                        Delete It!</button>
+                    <button type="button" class="btn w-sm btn-light" (click)="removeItemModal.hide()">Fermer</button>
+                    <button type="button" class="btn w-sm btn-danger" id="remove-element" (click)="deleteCategorie()">Oui, supprimez-la !</button>
                 </div>
             </div>
   

@@ -15,11 +15,14 @@ export class CategorieService {
   public getCategories(): Observable<any> {
     return this.http.get(API_URL+CATEGORIE+"all");
   }
+  public getActifById(idCategorie:any): Observable<any> {
+    return this.http.get(API_URL+CATEGORIE+"findById/"+idCategorie);
+  }
   public addCategorie(data:any):Observable<any> {
     return this.http.post(API_URL+CATEGORIE+"add",data);
   }
-  public editCategorie(idCategorie:number,data:any):Observable<any> {
-    return this.http.put(API_URL+CATEGORIE+"edit/"+idCategorie,data);
+  public editCategorie(idCategory:number,data:any):Observable<any> {
+    return this.http.put(API_URL+CATEGORIE+"edit/"+idCategory,data);
   }
   public removeCategorie(idCategorie:number):Observable<any> {
     return this.http.delete(API_URL+CATEGORIE+"delete/"+idCategorie);
