@@ -14,6 +14,9 @@ export class DepartementService {
   public getDepartementByEntreprise(offset: number, pageSize: number, field: string,idEntreprise:any): Observable<any> {
     return this.http.get(API_URL+DEPARTEMENT+"all/"+offset+"/"+pageSize+"/"+field+"/"+idEntreprise);
   }
+  public getDepartmentById(idDepartement: any): Observable<any> {
+    return this.http.get(API_URL+DEPARTEMENT+"findById/"+idDepartement);
+  }
   public addDepartement(data:any,idEntreprise:any):Observable<any> {
     return this.http.post(API_URL+DEPARTEMENT+"add/"+idEntreprise,data);
   }

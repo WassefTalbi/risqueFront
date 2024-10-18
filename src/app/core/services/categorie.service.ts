@@ -15,7 +15,7 @@ export class CategorieService {
   public getCategories(): Observable<any> {
     return this.http.get(API_URL+CATEGORIE+"all");
   }
-  public getActifById(idCategorie:any): Observable<any> {
+  public getCategorieById(idCategorie:any): Observable<any> {
     return this.http.get(API_URL+CATEGORIE+"findById/"+idCategorie);
   }
   public addCategorie(data:any):Observable<any> {

@@ -72,7 +72,7 @@
 
                                             <ul *bsDropdownMenu class="dropdown-menu dropdown-menu-end">
                                                 <li><a class="dropdown-item" [routerLink]="role === 'ADMIN' ? ['/projets/list', departement.id] : ['/User/projets/list', departement.id]"><i class="ph-eye align-middle me-1"></i> consulter projets</a></li>
-                                                <li><a *ngIf="role==='ADMIN'" class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="javascript:void(0);"><i class="ph-pencil align-middle me-1"></i>
+                                                <li><a *ngIf="role==='ADMIN'"  (click)="editDepartement(departement.id)" class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="javascript:void(0);"><i class="ph-pencil align-middle me-1"></i>
                                                         Modifier</a></li> 
                                                 <li><a *ngIf="role==='ADMIN'"class="dropdown-item remove-item-btn" (click)="removeItem(departement.id)" href="javascript:void(0);"><i class="ph-trash align-middle me-1"></i> supprimer</a></li>
                                             </ul>
@@ -187,7 +187,7 @@
         <div class="modal-content">
             <div class="modal-header px-4 pt-4">
                 <h5 class="modal-title" id="exampleModalLabel">Departement</h5>
-                <button type="button" class="btn-close" (click)="addDepartementModal.hide()"></button>
+                <button type="button" class="btn-close" (click)="addDepartementModalHide()"></button>
             </div>
 
             <form (ngSubmit)="saveDepartement()" [formGroup]="departementForm" class="tablelist-form" novalidate autocomplete="off">
@@ -246,7 +246,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="hstack gap-2 justify-content-end">
-                        <button type="button" class="btn btn-ghost-danger" (click)="addDepartementModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="button" class="btn btn-ghost-danger" (click)="addDepartementModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                         <button type="submit" class="btn btn-primary" id="add-btn">Ajouter Departement</button>
                     </div>
                 </div>
@@ -257,7 +257,75 @@
     <!-- modal-dialog -->
 </div>
 <!-- modal -->
+<div bsModal #editDepartementModal="bs-modal" class="modal fade" id="showModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header px-4 pt-4">
+                <h5 class="modal-title" id="exampleModalLabel">Departement</h5>
+                <button type="button" class="btn-close" (click)="editDepartementModalHide()"></button>
+            </div>
 
+            <form (ngSubmit)="updateDepartement()" [formGroup]="departementFormEdit" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body p-4">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+
+                    <input type="hidden" id="order-field">
+                    <input type="hidden" id="rating-field">
+                    <input type="hidden" id="discount-field">
+
+
+                    <div class="mb-3">
+                                <label class="form-label">Departement Logo </label>
+                               
+                                <img *ngIf="logoUrl" [src]="logoUrl" alt="Actif Logo" class="avatar-lg mb-2">
+                                <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+             
+                      </div>
+                    <div class="mb-3">
+                        <label for="nom-input" class="form-label">Departement Nom <span class="text-danger">*</span></label>
+                        <input type="text" id="nom-input" formControlName="nom" class="form-control" placeholder="Enter Departement Nom" required>
+                        <div *ngIf="departementFormEdit.get('nom')?.hasError('required') && departementFormEdit.get('nom')?.touched" class="text-danger">
+                            Departement Nom is required.
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="priorite-input" class="form-label">priorite <span class="text-danger">*</span></label>
+                                <input type="text" id="priorite-input" class="form-control" formControlName="priorite" placeholder="Enter departement priorite" required>
+                                <div *ngIf="departementFormEdit.get('priorite')?.hasError('required') && departementFormEdit.get('priorite')?.touched" class="text-danger">
+                                    Departement priorite is required.
+                                  </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="valeur-economique-input" class="form-label">valeur Economique<span class="text-danger">*</span></label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="product-price-input" formControlName="valeurEconomique" placeholder="Enter valeur economique" required>
+                                    <div *ngIf="departementFormEdit.get('valeurEconomique')?.hasError('required') && departementFormEdit.get('valeurEconomique')?.touched" class="text-danger">
+                                        Departement valeur economique is required.
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="editDepartementModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn">Modifier Departement</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+    <!-- modal-dialog -->
+</div>
 <!-- deleteRecordModal -->
 <div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

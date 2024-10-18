@@ -23,11 +23,13 @@ export class CategorieComponent {
   editCategoryId:any
   files: File[] = [];
   categoryForm!: UntypedFormGroup;
+  categoryFormEdit!: UntypedFormGroup;
   submitted = false;
   term: any;
   categorieslist: any;
   fileLogo: File | null = null;
   addCategorieError: string | null = null;
+  logoUrl:any
   @ViewChild('addCategoryModal', { static: false }) addCategoryModal?: ModalDirective;
   @ViewChild('editCategoryModal', { static: false }) editCategoryModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
@@ -53,7 +55,11 @@ export class CategorieComponent {
       nom: ['', [Validators.required]],
       logo: [null, Validators.required]
     });
-
+    this.categoryFormEdit = this.formBuilder.group({
+      nom: ['', [Validators.required]],
+      logo: [null]
+    });
+ 
     // Fetch Data
     setTimeout(() => {
      this.loadCategories();
@@ -86,6 +92,7 @@ export class CategorieComponent {
   onUploadSuccess(event: any) {
     setTimeout(() => {
       this.fileLogo = event.target.files[0];
+      this.logoUrl=null
     }, 0);
   }
 
@@ -141,25 +148,27 @@ export class CategorieComponent {
 
   editCategoryModalHide(){
     this.editCategoryModal?.hide();
-    this.categoryForm.reset();
+    this.categoryFormEdit.reset();
     this.fileLogo = null;
   }
 
   editCategory(id: any) {
-    this.categorieService.getActifById(id).subscribe((actif: any) => {
+    this.categorieService.getCategorieById(id).subscribe((categorie: any) => {
       this.editCategoryId = id;
-      this.categoryForm.patchValue({
-        nom: actif.nom,
+      this.categoryFormEdit.patchValue({
+        nom: categorie.nom,
       });
+      this.fileLogo = null; // Reset the fileLogo
+      this.logoUrl =`http://localhost:1919/user/image/${categorie.logo}`;
       this.editCategoryModal?.show();
     });
 }
 
 updateCategory() {
     this.submitted = true;
-    if (this.categoryForm.valid) {
+    if (this.categoryFormEdit.valid) {
       const updateData = new FormData();
-      updateData.append('nom', this.categoryForm.value.nom);
+      updateData.append('nom', this.categoryFormEdit.value.nom);
       if (this.fileLogo) {
         updateData.append('logo', this.fileLogo);
       }

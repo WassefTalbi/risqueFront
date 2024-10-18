@@ -165,7 +165,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost-danger" (click)="addEntrepriseModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                    <button type="button" class="btn btn-ghost-danger" (click)="addEntrepriseModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                     <button type="submit" class="btn btn-primary submit-btn" id="add-btn">Ajouter</button>
                 </div>
             </form>
@@ -184,25 +184,23 @@
         </button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="updateEntreprise()" [formGroup]="entrepriseForm" class="tablelist-form" novalidate autocomplete="off">
+        <form (ngSubmit)="updateEntreprise()" [formGroup]="entrepriseFormEdit" class="tablelist-form" novalidate autocomplete="off">
                 <div class="modal-body">
                     <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
                     <input type="hidden" id="id-field">
                     <div>
                         <div class="mb-3">
-                            <label class="form-label">Entreprise Logo <span class="text-danger">*</span></label>
-                        
-                            <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
-                            <div *ngIf="entrepriseForm.get('logo')?.hasError('required') && entrepriseForm.get('logo')?.touched" class="text-danger">
-                             Entreprise logo is required.
-                            </div>
-                          
-                        </div>
+                                <label class="form-label">Entreprise Logo </label>
+                               
+                                <img *ngIf="logoUrl" [src]="logoUrl" alt="Actif Logo" class="avatar-lg mb-2">
+                                <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
+             
+                      </div>
 
                         <div class="mb-3">
                             <label for="entreprise-Nom" class="form-label">Entreprise Nom <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="entreprise-Nom" formControlName="nom" placeholder="Entreprise nom" required>
-                            <div *ngIf="entrepriseForm.get('nom')?.hasError('required') && entrepriseForm.get('nom')?.touched" class="text-danger">
+                            <div *ngIf="entrepriseFormEdit.get('nom')?.hasError('required') && entrepriseFormEdit.get('nom')?.touched" class="text-danger">
                                 Entreprise Nom is required.
                               </div>
                         </div>
@@ -211,10 +209,10 @@
                         <div class="mb-3">
                             <label for="email" class="form-label">Entreprise Email <span class="text-danger">*</span></label>   
                             <input type="email" class="form-control" id="email" formControlName="email" placeholder="Email" required>
-                            <div *ngIf="entrepriseForm.get('email')?.hasError('required') && entrepriseForm.get('email')?.touched" class="text-danger">
+                            <div *ngIf="entrepriseFormEdit.get('email')?.hasError('required') && entrepriseFormEdit.get('email')?.touched" class="text-danger">
                                 Email is required.
                               </div>
-                              <div *ngIf="entrepriseForm.get('email')?.hasError('email') && entrepriseForm.get('email')?.touched" class="text-danger">
+                              <div *ngIf="entrepriseFormEdit.get('email')?.hasError('email') && entrepriseFormEdit.get('email')?.touched" class="text-danger">
                                 Invalid email format.
                               </div>
                         </div>
@@ -222,14 +220,14 @@
                         <div class="mb-3">
                             <label for="entreprise-domaine" class="form-label">Entreprise Domaine  <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="entreprise-domaine" formControlName="domaine" placeholder="Entreprise domaine" required>
-                            <div *ngIf="entrepriseForm.get('domaine')?.hasError('required') && entrepriseForm.get('domaine')?.touched" class="text-danger">
+                            <div *ngIf="entrepriseFormEdit.get('domaine')?.hasError('required') && entrepriseFormEdit.get('domaine')?.touched" class="text-danger">
                                 Entreprise domaine is required.
                               </div>
                         </div>
                         <div class="mb-3">
                             <label for="entreprise-adresse" class="form-label">Entreprise adresse<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="entreprise-adresse" formControlName="adresse" placeholder="Entreprise adresse " required>
-                            <div *ngIf="entrepriseForm.get('adresse')?.hasError('required') && entrepriseForm.get('adresse')?.touched" class="text-danger">
+                            <div *ngIf="entrepriseFormEdit.get('adresse')?.hasError('required') && entrepriseFormEdit.get('adresse')?.touched" class="text-danger">
                                 Entreprise adresse is required.
                               </div>
                         </div>

@@ -23,6 +23,7 @@ export class EntrepriseComponent {
   entreprisesList: any
   endItem: any
   entrepriseForm!: UntypedFormGroup;
+  entrepriseFormEdit!: UntypedFormGroup;
   submitted: boolean = false;
   addEntrepriseError: string | null = null;
   itemsPerPage=10;
@@ -35,6 +36,7 @@ export class EntrepriseComponent {
   sellerChart: any;
   term: any;
   fileLogo: File | null = null;
+  logoUrl!:any;
   constructor(private formBuilder: UntypedFormBuilder, private entrepriseService:EntrepriseService,private authService: AuthenticationService, private toastr: ToastrService) {
   }
 
@@ -48,12 +50,18 @@ export class EntrepriseComponent {
     this.role=this.authService.currentUser()['scope']
     console.log('role in the entreprise ',this.role);
     this.entrepriseForm = this.formBuilder.group({
-    
       nom: ['', [Validators.required]],
       domaine: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       adresse: ['', [Validators.required]],
       logo: [null, Validators.required]
+    });
+    this.entrepriseFormEdit = this.formBuilder.group({
+      nom: ['', [Validators.required]],
+      domaine: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      adresse: ['', [Validators.required]],
+      logo: [null]
     });
 
     setTimeout(() => {
@@ -76,6 +84,7 @@ export class EntrepriseComponent {
   onUploadSuccess(event: any) {
     setTimeout(() => {
       this.fileLogo = event.target.files[0];
+      this.logoUrl=null
     }, 0);
   }
 
@@ -89,6 +98,7 @@ export class EntrepriseComponent {
   loadEntreprises() {
     this.entrepriseService.getEntreprisesswithPaginationAndSorting(0, this.itemsPerPage, 'nom').subscribe((data) => {
       this.entreprises = data.content;
+      console.log(data.content)
       this.entreprisesList = data.content;
         this.entreprises = this.entreprisesList.slice(0, 10);
      
@@ -96,7 +106,7 @@ export class EntrepriseComponent {
   }
   editEntrepriseModalHide(){
    this.editEntrepriseModal?.hide()
-   this.entrepriseForm.reset()
+   this.entrepriseFormEdit.reset()
    this.fileLogo = null;
     }
   addEntrepriseModalHide(){
@@ -109,23 +119,25 @@ export class EntrepriseComponent {
   editEntreprise(id: any) {
     this.entrepriseService.getEntrepriseById(id).subscribe((entreprise: any) => {
       this.editEntrepriseId = id;
-      this.entrepriseForm.patchValue({
+      this.entrepriseFormEdit.patchValue({
         nom: entreprise.nom,
         domaine: entreprise.domaine,
         email: entreprise.email,
         adresse: entreprise.adresse
       });
+      this.fileLogo = null; // Reset the fileLogo
+      this.logoUrl =`http://localhost:1919/user/image/${entreprise.logo}`;
       this.editEntrepriseModal?.show();
     });
   }
   updateEntreprise() {
     this.submitted = true;
-    if (this.entrepriseForm.valid) {
+    if (this.entrepriseFormEdit.valid) {
       const updateData = new FormData();
-      updateData.append('nom', this.entrepriseForm.value.nom);
-      updateData.append('domaine', this.entrepriseForm.value.domaine);
-      updateData.append('email', this.entrepriseForm.value.email);
-      updateData.append('adresse', this.entrepriseForm.value.adresse);
+      updateData.append('nom', this.entrepriseFormEdit.value.nom);
+      updateData.append('domaine', this.entrepriseFormEdit.value.domaine);
+      updateData.append('email', this.entrepriseFormEdit.value.email);
+      updateData.append('adresse', this.entrepriseFormEdit.value.adresse);
       if (this.fileLogo) {
         updateData.append('logo', this.fileLogo);
       }

@@ -32,14 +32,18 @@ export class DepartementComponent {
   deleteID: any;
   files: File[] = [];
   departementForm!: UntypedFormGroup;
+  departementFormEdit!: UntypedFormGroup;
+  logoUrl:any
+  editDepartementId:any;
   submitted = false;
   masterSelected!: boolean;
   endItem: any
   currentEntrepriseId!: string|null;
   role:any;
   @ViewChild('addDepartementModal', { static: false }) addDepartementModal?: ModalDirective;
+  @ViewChild('editDepartementModal', { static: false }) editDepartementModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
-  editDepartement: any;
+  
   fileLogo: File | null = null; 
 
   constructor(private formBuilder: UntypedFormBuilder, private departementService:DepartementService,
@@ -68,6 +72,13 @@ export class DepartementComponent {
       valeurEconomique: ['', [Validators.required]],
       priorite: ['', [Validators.required]],
       logo: [null, Validators.required]
+    });
+    this.departementFormEdit = this.formBuilder.group({
+     
+      nom: ['', [Validators.required]],
+      valeurEconomique: ['', [Validators.required]],
+      priorite: ['', [Validators.required]],
+      logo: [null]
     });
  
     // fetch data
@@ -112,7 +123,7 @@ export class DepartementComponent {
   onUploadSuccess(event: any) {
     setTimeout(() => {
       this.fileLogo = event.target.files[0];
-    
+      this.logoUrl=null
     }, 0);
   }
 
@@ -140,7 +151,16 @@ export class DepartementComponent {
   compare(v1: string | number, v2: string | number) {
     return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
   }
-
+  editDepartementModalHide(){
+    this.editDepartementModal?.hide()
+    this.departementFormEdit.reset()
+    this.fileLogo = null;
+     }
+  addDepartementModalHide(){
+    this.addDepartementModal?.hide()
+    this.departementForm.reset()
+    this.fileLogo = null;
+  }
   saveDepartement() {
     if (this.departementForm.valid) {
       const registerData = new FormData();
@@ -179,7 +199,48 @@ export class DepartementComponent {
     }
   }
   
+ 
+  editDepartement(id: any) {
+    this.departementService.getDepartmentById(id).subscribe((departement: any) => {
+     this.editDepartementId=id
+      this.departementFormEdit.patchValue({
+        nom: departement.nom,
+        valeurEconomique: departement.valeurEconomique,
+        priorite: departement.priorite,
+       
+      });
+      this.fileLogo = null; // Reset the fileLogo
+      this.logoUrl =`http://localhost:1919/user/image/${departement.logo}`;
+      this.editDepartementModal?.show();
+    });
+  }
+  updateDepartement() {
+    this.submitted = true;
+    if (this.departementFormEdit.valid) {
+      const updateData = new FormData();
+      updateData.append('nom', this.departementFormEdit.value.nom);
+      updateData.append('valeurEconomique', this.departementFormEdit.value.valeurEconomique);
+      updateData.append('priorite', this.departementFormEdit.value.priorite);
 
+      if (this.fileLogo) {
+        updateData.append('logo', this.fileLogo);
+      }
+
+      this.departementService.editDepartement(this.editDepartementId, updateData).subscribe(
+        response => {
+          this.toastr.success('Departement mise à jour avec succès!', 'Succès');
+          console.log('Entreprise updated successfully:', response);
+          this.loadDepartements();
+          this.editDepartementModal?.hide();
+          this.fileLogo = null;
+        },
+        error => {
+          this.toastr.error('Erreur lors de la mise à jour de l\'entreprise.', 'Erreur');
+          console.error('Error updating entreprise:', error);
+        }
+      );
+    }
+  }
   checkedValGet: any[] = [];
 
   checkUncheckAll(ev: any) {

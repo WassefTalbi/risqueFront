@@ -108,25 +108,23 @@
                 <button type="button" class="btn-close btn-close-white" (click)="editCategoryModalHide()"></button>
             </div>
 
-            <form (ngSubmit)="updateCategory()" [formGroup]="categoryForm" class="tablelist-form" novalidate autocomplete="off">
+            <form (ngSubmit)="updateCategory()" [formGroup]="categoryFormEdit" class="tablelist-form" novalidate autocomplete="off">
                 <div class="modal-body">
                     <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
                     <input type="hidden" id="id-field">
                     <div>
                         <div class="mb-3">
-                            <label class="form-label">Categorie Logo <span class="text-danger">*</span></label>
-                        
+                            <label class="form-label">Categorie Logo </label>
+                           
+                            <img *ngIf="logoUrl" [src]="logoUrl" alt="Actif Logo" class="avatar-lg mb-2">
                             <input type="file" id="logo" class="form-control" formControlName="logo" (change)="onUploadSuccess($event)" />
-                            <div *ngIf="categoryForm.get('logo')?.hasError('required') && categoryForm.get('logo')?.touched" class="text-danger">
-                             categorie logo is required.
-                            </div>
-                          
-                        </div>
+         
+                  </div>
 
                         <div class="mb-3">
                             <label for="entreprise-Nom" class="form-label">Categorie Nom <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="categorie-Nom" formControlName="nom" placeholder="categorie nom" required>
-                            <div *ngIf="categoryForm.get('nom')?.hasError('required') && categoryForm.get('nom')?.touched" class="text-danger">
+                            <div *ngIf="categoryFormEdit.get('nom')?.hasError('required') && categoryFormEdit.get('nom')?.touched" class="text-danger">
                                 categorie Nom is required.
                               </div>
                         </div>

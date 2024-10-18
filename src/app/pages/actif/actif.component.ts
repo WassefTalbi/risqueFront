@@ -35,9 +35,11 @@ export class ActifComponent {
   categories: any;
   actifs: any;
   listactif!: any;
+  logoUrl:any
   selectedCategoryId: string | null = null;
   fileLogo: File | null = null;
   editActifId: number | null = null;
+  originalLogo!:string;
   role:any;
   @ViewChild('addActifModal', { static: false }) addActifModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
@@ -87,7 +89,7 @@ export class ActifComponent {
 
     this.actifForm = this.formBuilder.group({
       nom: [''],
-      logo:  [null, Validators.required],
+      logo:  [null],
       categorieId: ['', [Validators.required]],
       description: ['', [Validators.required]],
       valeurDonnees: ['', [Validators.required]],
@@ -177,15 +179,10 @@ export class ActifComponent {
   onUploadSuccess(event: any) {
     setTimeout(() => {
       this.fileLogo = event.target.files[0];
+      this.logoUrl=null
     }, 0);
   }
 
-
-
-
-  removeFile(event: any) {
-    this.uploadedFiles.splice(this.uploadedFiles.indexOf(event), 1);
-  }
 
   editActifModalHide(){
     this.editActifModal?.hide()
@@ -195,16 +192,20 @@ export class ActifComponent {
    
   editActif(id: any) {
       this.actifService.getActifById(id).subscribe((actif: any) => {
+        console.log(actif)
         this.editActifId = id;
+        this.originalLogo = actif.logo; 
         this.actifForm.patchValue({
           nom: actif.nom,
           description: actif.description,
           priorite:actif.priorite,
           valeurDonnees: actif.valeurDonnees,
           valeurFinanciere: actif.valeurFinanciere,
-          categorieId:actif.categorieId
+          categorieId:actif.categorie.id
           
         });
+        this.fileLogo = null; // Reset the fileLogo
+        this.logoUrl =`http://localhost:1919/user/image/${actif.logo}`;
         this.editActifModal?.show();
       });
   }
