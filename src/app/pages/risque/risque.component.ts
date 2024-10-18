@@ -202,13 +202,15 @@ export class RisqueComponent {
     this.vulnerabiliteService.removeVulnerabiliteFromActif(this.currentActifId, this.vulnerabiliteId).subscribe(
       response => {
         console.log('Vulnérabilité supprimée avec succès', response);
+        this.removeVulnerabiliteModal?.hide();
+        this.toastr.success('Vulnérabilité supprimée avec succès', 'Succès'); 
         this.loadVulnerabilites();
-        this.removeItemModal?.hide();
-        this.toastr.success('Vulnérabilité supprimée avec succès', 'Succès'); // Success toast
+       
+    
       },
       error => {
         console.error('Erreur lors de la suppression de la vulnérabilité', error);
-        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); // Error toast
+        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); 
       }
     );
   }
@@ -217,13 +219,13 @@ export class RisqueComponent {
     this.vulnerabiliteService.removeMenaceFromVulnerabilite(this.vulnerabiliteId, this.menaceId).subscribe(
       response => {
         console.log('Menace supprimée avec succès', response);
-        this.loadVulnerabilites();
         this.removeItemModal?.hide();
-        this.toastr.success('Menace supprimée avec succès', 'Succès'); // Success toast
+        this.toastr.success('Menace supprimée avec succès', 'Succès'); 
+        this.loadVulnerabilites();
       },
       error => {
         console.error('Erreur lors de la suppression de la menace', error);
-        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); // Error toast
+        this.toastr.error('Erreur lors de la suppression, veuillez réessayer', 'Erreur'); 
       }
     );
   }
