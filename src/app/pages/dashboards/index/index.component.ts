@@ -3,6 +3,7 @@ import { circle, latLng, tileLayer } from 'leaflet';
 import { Observable } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
+import { EChartsOption } from 'echarts';
 
 // amCharts imports
 import * as am5 from '@amcharts/amcharts5';
@@ -14,6 +15,8 @@ import { Store } from '@ngrx/store';
 import { fetchorderData,  fetchsalesData } from 'src/app/store/Ecommerce/ecommerce.actions';
 import { selectData, selectorderata, selectproductData } from 'src/app/store/Ecommerce/ecommerce-selector';
 import { products } from './data';
+import { AnalyticsService } from 'src/app/core/services/analytics.service';
+
 
 @Component({
   selector: 'app-index',
@@ -23,6 +26,9 @@ import { products } from './data';
 })
 export class IndexComponent {
 
+  chartOptions: EChartsOption = {};
+  chartOptionsProject: EChartsOption = {};
+  risqueImpacts: any[] = [];
   marketverviewChart: any;
   columnChart: any;
   mini6Chart: any;
@@ -35,9 +41,21 @@ export class IndexComponent {
   productdetail: any;
   sortValue: any = 'Order Date';
 
-  constructor(public store: Store) { }
+
+  totalUsers: number = 0;
+  totalProjects: number = 0;
+  totalActifs: number = 0;
+  public chartData: any[] = [];
+  public chartLabels: string[] = [];
+  constructor(public store: Store,private analyticService: AnalyticsService) { 
+  
+  }
 
   ngOnInit(): void {
+   this.loadCounts()
+   this.fetchRisqueImpacts();
+   this.fetchProjetStatusCounts();
+
     this._marketverviewChart('["--tb-primary", "--tb-secondary"]');
     this._columnChart('["--tb-primary", "--tb-light"]');
     this._mini6Chart('["--tb-primary"]');
@@ -108,7 +126,100 @@ export class IndexComponent {
 
 
   }
+    loadCounts(){
+      this.analyticService.getAnalyticsCounts().subscribe((data) => {
+        this.totalUsers = data.totalUsers;
+        this.totalProjects = data.totalProjects;
+        this.totalActifs = data.totalActifs;
+      });
+    } 
 
+    fetchRisqueImpacts(): void {
+      this.analyticService.getRisqueImpacts().subscribe((data) => {
+        this.risqueImpacts = data;
+  
+    
+        const actifNames = this.risqueImpacts.map(item => item.actifName);
+        const impacts = this.risqueImpacts.map(item => item.impact);
+        const barColors = this.risqueImpacts.map(item => {
+          if (item.impact <= 25) {
+            return '#00FF00';  
+          } else if (item.impact > 25 && item.impact < 50) {
+            return '#FFA500';  
+          } else {
+            return '#FF0000';  
+          }
+        });
+      
+        this.chartOptions = {
+         
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          xAxis: {
+            type: 'category',
+            data: actifNames
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              name: 'Impact',
+              type: 'bar',
+              data: impacts.map((impact, index) => ({
+                value: impact,
+                itemStyle: { color: barColors[index] }  // Apply color for each bar
+              })),
+              barWidth: '60%'
+            }
+          ]
+        };
+      });
+    }
+    fetchProjetStatusCounts(): void {
+      this.analyticService.getProjetStatusCounts().subscribe((data) => {
+        const statuses = data.map(item => item.status);
+        const counts = data.map(item => item.count);
+  
+        this.chartOptionsProject = {
+       
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left'
+          },
+          series: [
+            {
+              name: 'Projets',
+              type: 'pie',
+              radius: '50%',
+              data: statuses.map((status, index) => ({
+                value: counts[index],
+                name: status
+              })),
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+      });
+    }
+  
+ 
+  
+   
+    
   // Chart Colors Set
   private getChartColorsArray(colors: any) {
     colors = JSON.parse(colors);
