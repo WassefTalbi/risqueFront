@@ -59,7 +59,6 @@ export class HorizontalTopbarComponent {
     }, 1500);
   }
 
-  // Display Menu 
   updateMenu() {
     const navbarNav: any = document.getElementById("navbar-nav");
     const fullWidthOfMenu = navbarNav?.parentElement?.clientWidth;
@@ -81,22 +80,7 @@ export class HorizontalTopbarComponent {
         }
       }
     }
-    const moreMenuItem = {
-      id: "more",
-      label: "More",
-      icon: 'ri-briefcase-2-line',
-      subItems: hiddenItems,
-      link: "/#",
-      stateVariables: this.isMoreMenu,
-      click: (e: any) => {
-        e.preventDefault();
-        this.isMoreMenu = !this.isMoreMenu;
-      },
-    };
-
-    const updatedMenuItems = [...visibleItems, moreMenuItem];
-    this.menuItems = updatedMenuItems;
-
+   
   }
 
   private menuPosSetOnClicknHover() {

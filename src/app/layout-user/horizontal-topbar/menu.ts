@@ -3,22 +3,16 @@ import { MenuItem } from "./menu.model";
 export const MENU: MenuItem[] = [
 
  
+ 
   {
     id: 1,
-    label: 'Dashboard',
-    icon: 'ri-apps-line',
-    link: '/User/analytics',
-    parentId: 8,
-  },
-  {
-    id: 2,
     label: 'Entreprises',
     icon: 'ri-apps-line',
     link: '/User/entreprises/list',
     parentId: 1
   },   
    {
-       id: 3,
+       id: 2,
        label: 'Actif',
        icon: 'ri-apps-line',
        parentId: 8,
