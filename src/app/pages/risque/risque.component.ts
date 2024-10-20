@@ -18,6 +18,7 @@ export class RisqueComponent {
   // Bread crumb items
   breadCrumbItems!: Array<{}>;
   vulnerabiliteForm!: UntypedFormGroup;
+  risqueFormEdit!: UntypedFormGroup;
   menaceForm!: UntypedFormGroup;
   reviewData: any;
   submitted: boolean = false;
@@ -31,11 +32,13 @@ export class RisqueComponent {
   risque: any;
   actif: any;
   vulnerabilites!: any[];
+  editRisqueId:any;
   
   @ViewChild('addReview', { static: false }) addReview?: ModalDirective;
   @ViewChild('addVulnerabiliteModal', { static: false }) addVulnerabiliteModal?: ModalDirective;
   @ViewChild('addMenaceModal', { static: false }) addMenaceModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
+  @ViewChild('editRisqueModal', { static: false }) editRisqueModal?: ModalDirective;
   @ViewChild('removeVulnerabiliteModal', { static: false }) removeVulnerabiliteModal?: ModalDirective;
 
   constructor(
@@ -67,6 +70,14 @@ export class RisqueComponent {
       nom: ['', [Validators.required]],
     });
 
+    this.risqueFormEdit = this.formBuilder.group({
+      nom: ['', [Validators.required]],
+      valeurFinanciere: ["", [Validators.required]],
+      probabilite: ["", [Validators.required, Validators.min(1), Validators.max(6)]],
+      priorite: ["", [Validators.required]],
+      valeurBaseImpact: ["", [Validators.required, Validators.min(1), Validators.max(6)]],
+    });
+
     // Fetch Data
     this.reviewData = reviews.reverse();
   }
@@ -77,12 +88,10 @@ export class RisqueComponent {
     previewsContainer: false,
   };
 
-  // Change Tab Content
   changeTab(tab: string) {
     this.currentTab = tab;
   }
 
-  // Open & close chatbox
   openchatbox() {
     document.getElementById('emailchat-detailElem')?.classList.add('d-block');
   }
@@ -229,4 +238,51 @@ export class RisqueComponent {
       }
     );
   }
+
+  
+  editRisqueModalHide(){
+    this.editRisqueModal?.hide();
+    this.risqueFormEdit.reset();
+  
+  }
+
+  editRisque(id: any) {
+    this.risqueService.getRisqueById(id).subscribe((risque: any) => {
+      this.editRisqueId = id;
+      console.log(risque)
+      this.risqueFormEdit.patchValue({
+        nom: risque.nom,
+        valeurFinanciere: risque.valeurFinanciere,
+        probabilite: risque.probabilite,
+        priorite: risque.priorite,
+        valeurBaseImpact: risque.valeurBaseImpact,
+      });
+    
+      this.editRisqueModal?.show();
+    });
+}
+
+updateRisque() {
+    this.submitted = true;
+    if (this.risqueFormEdit.valid) {
+      const updateData = new FormData();
+      updateData.append('risqueNom', this.risqueFormEdit.value.nom);
+      updateData.append('risqueValeurFinanciere', this.risqueFormEdit.value.valeurFinanciere);
+      updateData.append('probabilite', this.risqueFormEdit.value.probabilite);
+      updateData.append('risquePriorite', this.risqueFormEdit.value.priorite);
+      updateData.append('valeurBaseImpact', this.risqueFormEdit.value.valeurBaseImpact);
+      this.risqueService.editRisque(this.editRisqueId, updateData).subscribe(
+        response => {
+          this.toastr.success('risque mis à jour avec succès !', 'Succès');  
+          console.log('risque updated successfully:', response);
+          this.loadRisque();
+         this.editRisqueModalHide();
+        },
+        error => {
+          this.toastr.error('Erreur lors de la mise à jour de risque.', 'Erreur'); 
+          console.error('Error updating risque:', error);
+        }
+      );
+    }
+}
 }

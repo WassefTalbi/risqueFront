@@ -116,7 +116,7 @@
     <div class="modal-content border-0">
       <div class="modal-header bg-danger p-3">
         <h5 class="modal-title text-white">{{ modalTitle }}</h5>
-        <button type="button" class="btn-close btn-close-white" (click)="hideModal()"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="addActifModalHide()"></button>
       </div>
 
       <form (ngSubmit)="onSubmit()" [formGroup]="currentForm" class="tablelist-form" novalidate autocomplete="off">
@@ -241,6 +241,12 @@
                               <div *ngIf="risqueForm.get('probabilite')?.hasError('required') && risqueForm.get('probabilite')?.touched" class="text-danger">
                                   risque probabilite  is required.
                               </div>
+                              <div *ngIf="risqueForm.get('probabilite')?.hasError('min') && risqueForm.get('probabilite')?.touched" class="text-danger">
+                                        Probabilite must be at least 1.
+                              </div>
+                             <div *ngIf="risqueForm.get('probabilite')?.hasError('max') && risqueForm.get('probabilite')?.touched" class="text-danger">
+                                        Probabilite must be at most 6.
+                             </div>
                           </div>
                       </div><!--end col-->
                      
@@ -252,7 +258,13 @@
                                   <input type="number" id="valeurFinanciere-input" class="form-control" formControlName="valeurBaseImpact" placeholder="valeur Base Impact" required>
                                   <div *ngIf="risqueForm.get('valeurBaseImpact')?.hasError('required') && risqueForm.get('valeurBaseImpact')?.touched" class="text-danger">
                                     valeur Base Impact is required.
-                                  </div>                             
+                                  </div>   
+                                  <div *ngIf="risqueForm.get('valeurBaseImpact')?.hasError('min') && risqueForm.get('valeurBaseImpact')?.touched" class="text-danger">
+                                            Valeur Base Impact must be at least 1.
+                                  </div>
+                                 <div *ngIf="risqueForm.get('valeurBaseImpact')?.hasError('max') && risqueForm.get('valeurBaseImpact')?.touched" class="text-danger">
+                                            Valeur Base Impact must be at most 6.
+                                 </div>                            
                              </div>
                           </div>
                       </div><!--end col-->

@@ -46,7 +46,14 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div [hidden]="currentTab !== 'description'" class="tab-pane active" id="description" role="tabpanel">
-                            <h6 class="card-title mb-3">{{risque.nom}}</h6>
+                        <h6 class="card-title mb-3 d-flex justify-content-between align-items-center">
+                            <span>{{ risque.nom }}</span>
+                            <button type="button" class="btn p-0 text-success" (click)="editRisque(risque.id)">
+                              <i class="bi bi-gear-fill"></i> modifier
+                            </button>
+                           
+                          </h6>
+                            
                             <ul class="list-unstyled vstack gap-2">
                               <li><i class="bi bi-caret-right"></i> Priorite : {{risque.priorite}}</li>
                               <li><i class="bi bi-caret-right"></i> Probabilite : {{risque.probabilite}}</li>
@@ -90,7 +97,7 @@
                                                 </div>
                                             </li>
                                           
-                                        </ul>
+                                        </ul> 
                                     </div>
                                 </div>
                             </accordion-group>
@@ -225,6 +232,105 @@
                     <div class="hstack gap-2 justify-content-end">
                         <button type="button" class="btn btn-ghost-danger" (click)="addMenaceModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                         <button type="submit" class="btn btn-primary" id="add-btn">Ajouter Menace</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+</div><!--end add Property modal-->
+
+<div bsModal #editRisqueModal="bs-modal" class="modal fade" id="editCategoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-secondary p-3">
+                <h5 class="modal-title text-white" id="addCategoryLabel">Modifier Categorie</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="editRisqueModalHide()"></button>
+            </div>
+
+            <form (ngSubmit)="updateRisque()" [formGroup]="risqueFormEdit" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div>
+                        
+
+                        <div class="mb-3">
+                            <label for="risque-nom-input" class="form-label">Risque Nom <span class="text-danger">*</span></label>
+                            <input type="text" formControlName="nom" class="form-control" placeholder="Enter risque nom" required>
+                            <div *ngIf="risqueFormEdit.get('nom')?.hasError('required') && risqueFormEdit.get('nom')?.touched" class="text-danger">
+                              Risque nom is required.
+                            </div>
+                          </div>
+        
+                          <div class="row">
+                              
+                              <div class="col-lg-6">
+                                  <div class="mb-3">
+                                      <label for="priorite-input" class="form-label">Priorite<span class="text-danger">*</span></label>
+                                      <input type="number" id="lessons-input" class="form-control" formControlName="priorite" placeholder="priorite" required>
+                                      <div *ngIf="risqueFormEdit.get('priorite')?.hasError('required') && risqueFormEdit.get('priorite')?.touched" class="text-danger">
+                                          risque priorite is required.
+                                      </div>
+                                  </div>
+                              </div><!--end col-->
+                              <div class="col-lg-6">
+                                  <div class="mb-3">
+                                      <label for="probabilite-input" class="form-label">Probabilite<span class="text-danger">*</span></label>
+                                      <input type="number" id="probabilite-input" class="form-control" formControlName="probabilite" placeholder="valeur Données" required>
+                                      <div *ngIf="risqueFormEdit.get('probabilite')?.hasError('required') && risqueFormEdit.get('probabilite')?.touched" class="text-danger">
+                                          risque probabilite  is required.
+                                      </div>
+                                      <div *ngIf="risqueFormEdit.get('probabilite')?.hasError('min') && risqueFormEdit.get('probabilite')?.touched" class="text-danger">
+                                        Probabilite must be at least 1.
+                                      </div>
+                                      <div *ngIf="risqueFormEdit.get('probabilite')?.hasError('max') && risqueFormEdit.get('probabilite')?.touched" class="text-danger">
+                                        Probabilite must be at most 6.
+                                      </div>
+                                  </div>
+                              </div><!--end col-->
+                             
+                              <div class="col-lg-6">
+                                  <div class="mb-3">
+                                      <label for="financiere-input" class="form-label">Valeur Base Impact<span class="text-danger">*</span></label>
+                                      <div class="input-group">
+                                        
+                                          <input type="number" id="valeurFinanciere-input" class="form-control" formControlName="valeurBaseImpact" placeholder="valeur Base Impact" required>
+                                          <div *ngIf="risqueFormEdit.get('valeurBaseImpact')?.hasError('required') && risqueFormEdit.get('valeurBaseImpact')?.touched" class="text-danger">
+                                            valeur Base Impact is required.
+                                          </div>  
+                                          <div *ngIf="risqueFormEdit.get('valeurBaseImpact')?.hasError('min') && risqueFormEdit.get('valeurBaseImpact')?.touched" class="text-danger">
+                                            Valeur Base Impact must be at least 1.
+                                          </div>
+                                          <div *ngIf="risqueFormEdit.get('valeurBaseImpact')?.hasError('max') && risqueFormEdit.get('valeurBaseImpact')?.touched" class="text-danger">
+                                            Valeur Base Impact must be at most 6.
+                                          </div>                           
+                                     </div>
+                                  </div>
+                              </div><!--end col-->
+                              <div class="col-lg-6">
+                              <div class="mb-3">
+                                  <label for="valeurFinanciere-input" class="form-label">Valeur Financiere<span class="text-danger">*</span></label>
+                                  <div class="input-group">
+                                      <span class="input-group-text">$</span>
+                                  <input type="number" id="valeurFinanciere-input" class="form-control" formControlName="valeurFinanciere" placeholder="valeur Financiere" required>
+                                  <div *ngIf="risqueFormEdit.get('valeurFinanciere')?.hasError('required') && risqueFormEdit.get('valeurFinanciere')?.touched" class="text-danger">
+                                       valeur Financiere is required.
+                                  </div>
+                              </div>
+                              </div>
+                          </div><!--end col-->
+                          </div><!--end row-->
+                        
+                      
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="editRisqueModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn">Modifier Risque</button>
                     </div>
                 </div>
             </form>

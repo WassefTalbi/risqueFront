@@ -101,9 +101,9 @@ export class ActifComponent {
     this.risqueForm = this.formBuilder.group({
       nom: [''],
       valeurFinanciere: ['', [Validators.required]],
-      probabilite: ['', [Validators.required]],
+      probabilite: ['', [Validators.required, Validators.min(1), Validators.max(6)]],
       priorite: ['', [Validators.required]],
-      valeurBaseImpact: ['', [Validators.required]],
+      valeurBaseImpact: ['', [Validators.required, Validators.min(1), Validators.max(6)]],
     
   
     });
@@ -145,7 +145,12 @@ export class ActifComponent {
   uploadedFiles: any[] = [];
 
 
-
+  addActifModalHide(){
+    (this.stepModal as any).hide();
+        this.actifForm.reset();
+    this.risqueForm.reset();
+    this.fileLogo=null;
+  }
   
   loadCategories() {
     this.categorieService.getCategories().subscribe((data) => {

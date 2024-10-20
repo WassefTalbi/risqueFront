@@ -14,6 +14,9 @@ export class RisqueService {
   public getActifById(idActif:any): Observable<any> {
     return this.http.get(API_URL+ACTIF+"findById/"+idActif);
   }
+  public getRisqueById(idRisque:any): Observable<any> {
+    return this.http.get(API_URL+RISQUE+"findById/"+idRisque);
+  }
   public addRisque(data:any):Observable<any> {
     return this.http.post(API_URL+RISQUE+"add",data);
   }
