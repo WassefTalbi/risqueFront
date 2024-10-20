@@ -64,21 +64,21 @@
                     </div>
                     <div [hidden]="currentTab !== 'videoTutorials'" class="tab-pane active" id="videoTutorials" role="tabpanel">
                         <!-- START Accordions -->
-                        <button class="btn btn-secondary" (click)="addVulnerabiliteModal.show()" ><i class="bi bi-plus align-baseline me-1"></i> Vulnerabilité</button>
+                        <button class="btn btn-secondary" (click)="addMenaceModal.show()" ><i class="bi bi-plus align-baseline me-1"></i> menace</button>
 
                         <accordion class="accordion accordion-border-box  mt-3" [closeOthers]="true" id="accordionlefticon">
-                            <accordion-group *ngFor="let vulnerabilite of vulnerabilites"class="accordion-item">
+                            <accordion-group *ngFor="let menace of menaces"class="accordion-item">
                                 <h2 accordion-heading class="accordion-header" id="accordionlefticonExample1">
                                     <button  class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accor_lefticonExamplecollapse1" aria-expanded="true" aria-controls="accor_lefticonExamplecollapse1">
-                                        {{vulnerabilite.nom}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <a class="text-success"  (click)="checkVulnerabilite(vulnerabilite.id)" ><i class="ph-plus align-baseline me-1"></i>Créer une menace</a>
+                                        {{menace.nom}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <a class="text-success"  (click)="checkMenace(menace.id)" ><i class="ph-plus align-baseline me-1"></i>Créer une vulnerabilité</a>
                                     </button>
-                                    <a href="javascript:void(0)" (click)="removeVulnerabilite(vulnerabilite.id)" class="badge bg-danger-subtle text-danger">
+                                    <a href="javascript:void(0)" (click)="removeReview(menace.id)" class="badge bg-danger-subtle text-danger">
                                         <i class="ph-trash align-baseline"></i> 
                                      </a>
                                 </h2>
                                 <div id="accor_lefticonExamplecollapse1" class="accordion-collapse collapse show">
-                                    <div *ngIf="vulnerabilite.menaces?.length > 0" class="accordion-body">
-                                        <ul *ngFor="let menace of vulnerabilite.menaces"class="list-group list">
+                                    <div *ngIf="menace.vulnerabilites?.length > 0" class="accordion-body">
+                                        <ul *ngFor="let vulnerabilite of menace.vulnerabilites"class="list-group list">
                                             <li class="list-group-item position-relative">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 avatar-xs">
@@ -87,10 +87,10 @@
                                                         </div>
                                                     </div>
                                                     <div class="flex-grow-1 ms-2">
-                                                        <h6  class="stretched-link text-reset">{{menace.nom}}</h6> 
+                                                        <h6  class="stretched-link text-reset">{{vulnerabilite.nom}}</h6> 
                                                     </div>
                                                     <div class="flex-shrink-0">
-                                                        <a href="javascript:void(0)" (click)="DeleteMenace()" class="badge bg-danger-subtle text-danger">
+                                                        <a href="javascript:void(0)" (click)="DeleteVulnerabilite()" class="badge bg-danger-subtle text-danger">
                                                             <i class="ph-trash align-baseline"></i> 
                                                          </a>
                                                   </div>

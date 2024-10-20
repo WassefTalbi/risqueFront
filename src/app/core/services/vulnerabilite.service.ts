@@ -16,20 +16,20 @@ export class VulnerabiliteService {
   public getAllVulnerabilite(): Observable<any> {
     return this.http.get(API_URL+VULNERABILITE+"all");
   }
-  public getVulnerabiliteByActif(idActif:any): Observable<any> {
+  public getMenacesByActif(idActif:any): Observable<any> {
     return this.http.get(API_URL+VULNERABILITE+"of-actif/"+idActif);
   }
   public addVulnerabilite(data:any):Observable<any> {
     
-    return this.http.post(API_URL+VULNERABILITE+"add",data);
+    return this.http.post(API_URL+VULNERABILITE+"add-vulnerabilite",data);
   }
   public addMenace(data:any):Observable<any> {
-    return this.http.post(API_URL+VULNERABILITE+"add-menace",data);
+    return this.http.post(API_URL+VULNERABILITE+"add",data);
   }
-  public removeMenaceFromVulnerabilite(vulnerabiliteId:any,menaceId:any):Observable<any> {
-    return this.http.delete(API_URL+VULNERABILITE+"remove-menace/"+vulnerabiliteId+"/"+menaceId);
+  public removeVulnerabiliteFromMenace(menaceId:any,vulnerabiliteId:any):Observable<any> {
+    return this.http.delete(API_URL+VULNERABILITE+"remove-vulnerabilite/"+menaceId+"/"+vulnerabiliteId);
   }
-  public removeVulnerabiliteFromActif(actifId:any,vulnerabiliteId:any):Observable<any> {
-    return this.http.delete(API_URL+VULNERABILITE+"remove-vulnerabilite/"+actifId+"/"+vulnerabiliteId);
+  public removeMenaceFromActif(actifId:any,menaceId:any):Observable<any> {
+    return this.http.delete(API_URL+VULNERABILITE+"remove-menace/"+actifId+"/"+menaceId);
   }
 }

@@ -25,13 +25,13 @@ export class RisqueComponent {
   currentTab = 'description';
   addVulnerabiliteError: string | null = null;
   addMenaceError: string | null = null;
-  currentActifId!: string | null;
+  currentActifId!: any;
   vulnerabiliteId!: string | null;
   menaceId!: string | null;
-  checkedVulnerabiliteId!: string;
+  checkedMenaceId!: string;
   risque: any;
   actif: any;
-  vulnerabilites!: any[];
+  menaces!: any[];
   editRisqueId:any;
   
   @ViewChild('addReview', { static: false }) addReview?: ModalDirective;
@@ -58,16 +58,18 @@ export class RisqueComponent {
 
     this.getCurrentActifId();
     this.loadRisque();
-    this.loadVulnerabilites();
+    this.loadMenaces();
 
     // Form Validation
     this.vulnerabiliteForm = this.formBuilder.group({
       nom: ['', [Validators.required]],
-      actifId: [this.currentActifId, [Validators.required]],
+    
     });
 
     this.menaceForm = this.formBuilder.group({
       nom: ['', [Validators.required]],
+      actifId: [this.currentActifId, [Validators.required]],
+
     });
 
     this.risqueFormEdit = this.formBuilder.group({
@@ -115,31 +117,32 @@ export class RisqueComponent {
     });
   }
 
-  loadVulnerabilites() {
-    this.vulnerabiliteService.getVulnerabiliteByActif(this.currentActifId).subscribe((data) => {
-      this.vulnerabilites = data;
-      console.log('vulnerabilites of actif', data);
+  loadMenaces() {
+    this.vulnerabiliteService.getMenacesByActif(this.currentActifId).subscribe((data) => {
+      this.menaces = data;
+      console.log('menaces of actif', data);
     });
   }
 
-  checkVulnerabilite(idVulnerabilite: any) {
-    this.checkedVulnerabiliteId = idVulnerabilite;
-    console.log(idVulnerabilite);
-    this.addMenaceModal?.show();
+  checkMenace(idMenace: any) {
+    this.checkedMenaceId = idMenace;
+    console.log(idMenace);
+    this.addVulnerabiliteModal?.show();
   }
 
   saveVulnerabilite() {
     if (this.vulnerabiliteForm.valid) {
       const registerData = new FormData();
       registerData.append('nom', this.vulnerabiliteForm.value.nom);
-      registerData.append('actifId', this.vulnerabiliteForm.value.actifId);
+      registerData.append('menaceId', this.checkedMenaceId);
 
       this.vulnerabiliteService.addVulnerabilite(registerData).subscribe(
         response => {
-          this.vulnerabiliteForm.reset();
-          this.loadVulnerabilites();
           this.addVulnerabiliteModal?.hide();
+          this.vulnerabiliteForm.reset();
           this.toastr.success('Vulnérabilité ajoutée avec succès', 'Succès'); 
+          this.loadMenaces();
+          
         },
         error => {
           if (error.status === 400) {
@@ -165,14 +168,16 @@ export class RisqueComponent {
     if (this.menaceForm.valid) {
       const registerData = new FormData();
       registerData.append('nom', this.menaceForm.value.nom);
-      registerData.append('vulnerabiliteId', this.checkedVulnerabiliteId);
+      registerData.append('actifId', this.currentActifId);
+     
 
       this.vulnerabiliteService.addMenace(registerData).subscribe(
         response => {
           this.menaceForm.reset();
-          this.loadVulnerabilites();
+       
           this.addMenaceModal?.hide();
           this.toastr.success('Menace ajoutée avec succès', 'Succès');
+          this.loadMenaces();
         },
         error => {
           if (error.status === 400) {
@@ -194,26 +199,26 @@ export class RisqueComponent {
     }
   }
 
-  removeReview(idVul: any, idMenace: any) {
-    console.log("display the id of vulnerabilite and the id of menace" + idVul, idMenace);
-     this.vulnerabiliteId = idVul
-     this.menaceId = idMenace
-     this.removeItemModal?.show()
+  removeReview( idMenace: any) {  
+    this.menaceId = idMenace
+    this.removeItemModal?.show();
   }
 
-  removeVulnerabilite(idVulnerabilite: any) {
-    console.log("display the id of vulnerabilite and the id of menace" + idVulnerabilite);
-    this.vulnerabiliteId = idVulnerabilite;
+  removeVulnerabilite(idVul: any, idMenace: any ) {
+    this.vulnerabiliteId = idVul
+    this.menaceId = idMenace
+    this.removeItemModal?.show()
     this.removeVulnerabiliteModal?.show();
+
   }
 
   DeleteVulnerabilite() {
-    this.vulnerabiliteService.removeVulnerabiliteFromActif(this.currentActifId, this.vulnerabiliteId).subscribe(
+    this.vulnerabiliteService.removeVulnerabiliteFromMenace(this.menaceId, this.vulnerabiliteId).subscribe(
       response => {
         console.log('Vulnérabilité supprimée avec succès', response);
         this.removeVulnerabiliteModal?.hide();
         this.toastr.success('Vulnérabilité supprimée avec succès', 'Succès'); 
-        this.loadVulnerabilites();
+        this.loadMenaces();
        
     
       },
@@ -225,12 +230,12 @@ export class RisqueComponent {
   }
 
   DeleteMenace() {
-    this.vulnerabiliteService.removeMenaceFromVulnerabilite(this.vulnerabiliteId, this.menaceId).subscribe(
+    this.vulnerabiliteService.removeMenaceFromActif(this.currentActifId, this.menaceId).subscribe(
       response => {
         console.log('Menace supprimée avec succès', response);
         this.removeItemModal?.hide();
         this.toastr.success('Menace supprimée avec succès', 'Succès'); 
-        this.loadVulnerabilites();
+        this.loadMenaces();
       },
       error => {
         console.error('Erreur lors de la suppression de la menace', error);
