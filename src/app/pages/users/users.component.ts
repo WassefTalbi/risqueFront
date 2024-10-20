@@ -9,7 +9,7 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { UserProfileService } from 'src/app/core/services/user.service';
 import { chatMessagesData } from '../forms/advance/data';
-
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-users',
@@ -37,8 +37,11 @@ export class UsersComponent {
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   deleteId: any;
   constructor(private userService: UserProfileService,
-              private sanitizer: DomSanitizer,private formBuilder: UntypedFormBuilder, private authService:AuthenticationService,
-              private router: Router) { }
+              private sanitizer: DomSanitizer,
+              private formBuilder: UntypedFormBuilder,
+              private authService:AuthenticationService,
+              private router: Router,
+              private toastr: ToastrService) { }
 
 ngOnInit(): void {
   this.signupForm = this.formBuilder.group({
@@ -83,31 +86,33 @@ ngOnInit(): void {
   }
 }
   blockUser(id: number): void {
-    console.log("aaaaa")
+    console.log("testing blockage");
+    
     this.userService.blockUser(id).subscribe((response) => {
-      console.log(response)
-
-      const user = this.users.find((user: any) => user.id === id);
-      console.log(user.nonLocked)
+      this.toastr.success('chef projet blocked avec succès!', 'Succès');
+      this.loadAllUsers();
+     /* const user = this.users.find((user: any) => user.id === id);
       if (user) {
         user.nonLocked = false;
-      }
+      }*/
     }, error => {
-      // Log the error to the console
+      this.toastr.error('Une erreur s\'est produite lors du blockage chef projet.', 'Erreur');
       console.error('Error unblocking user:', error);
     });
   }
 
   unblockUser(id: number): void {
     this.userService.unblockUser(id).subscribe((response) => {
-      console.log(response)
-      const user = this.users.find((user: any) => user.id === id);
-      console.log(user.nonLocked)
+      this.toastr.success('chef projet unblocked avec succès!', 'Succès');
+      this.loadAllUsers();
+      /*const user = this.users.find((user: any) => user.id === id);
+   
       if (user) {
         user.nonLocked = true;
-      }
+      }*/
     }, error => {
-      // Log the error to the console
+      this.toastr.error('Une erreur s\'est produite lors du deblockage chef projet.', 'Erreur');
+
       console.error('Error unblocking user:', error);
     });
   }
@@ -154,11 +159,14 @@ ngOnInit(): void {
   onChangeChefProjet(event: any) {
     this.fileChefProjet = event.target.files[0];
   }
+  addUserModalHide(){
+    this.addUserModal?.hide()
+    this.signupForm.reset();
+   
+  
+  }
 
   onSubmit() {
-    console.log("test",this.signupForm.valid);
-    
-  
     const fmobileNumber = this.f['mobileNumber'].value;
     let countryCode = this.selectedCountry.countryCode;
     let mobileNumber = `${countryCode} ${fmobileNumber}`;
@@ -178,9 +186,10 @@ ngOnInit(): void {
     // Call AuthService method to register user
     this.authService.registerUser(registerData).subscribe(
       (response) => {
+        this.toastr.success('chef projet ajouté avec succès!', 'Succès');
         console.log('User registered successfully:', response);
         this.loadAllUsers()
-        this.addUserModal?.hide()
+        this.addUserModalHide()
       },
       (error) => {
         if (error.status === 400) {
@@ -194,10 +203,11 @@ ngOnInit(): void {
         } else if(error.status === 500){
           if (error.error.error === 'Email already exists') {
             this.emailError = 'Email already exists';
-          }else {
-            console.log('An unexpected error occurred:', error);
+            this.toastr.error('Erreur Email already exists', 'Erreur'); 
           }
         } else {
+          this.toastr.error('Erreur lors de l\'ajout de chef projet.', 'Erreur'); 
+
           console.log('An unexpected error occurred:', error);
         }
       }
@@ -214,9 +224,11 @@ ngOnInit(): void {
 
   deleteUser() {
     this.userService.removeUser(this.deleteId).subscribe(data=>{
+      this.toastr.success('chef projet supprimer avec succès!', 'Succès');
       this.loadAllUsers();
       this.removeItemModal?.hide()
     },error=>{
+      this.toastr.error('Erreur lors du supprision de chef projet.', 'Erreur'); 
       console.log(error)
     });
   }

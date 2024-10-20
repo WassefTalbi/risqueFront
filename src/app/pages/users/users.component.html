@@ -81,7 +81,7 @@
         <div class="modal-content">
             <div class="modal-header px-4 pt-4">
                 <h5 class="modal-title" id="exampleModalLabel">Crée chef projet</h5>
-                <button type="button" class="btn-close" (click)="addUserModal.hide()"></button>
+                <button type="button" class="btn-close" (click)="addUserModalHide()"></button>
             </div>
             <form (ngSubmit)="onSubmit()" [formGroup]="signupForm" class="tablelist-form" novalidate autocomplete="off">
               <div class="modal-body p-4">
@@ -175,7 +175,7 @@
               </div>
               <div class="modal-footer">
                   <div class="hstack gap-2 justify-content-end">
-                      <button type="button" class="btn btn-ghost-danger" (click)="addUserModal.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                      <button type="button" class="btn btn-ghost-danger" (click)="addUserModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                       <button type="submit" class="btn btn-primary" id="add-btn">Ajouter chef projet</button>
                   </div>
               </div>

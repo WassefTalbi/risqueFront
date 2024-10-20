@@ -43,7 +43,7 @@ export class UserProfileService {
 
 
   blockUser(id: number): Observable<User> {
-    console.log(id);
+ 
     return this.http.put<User>(API_URL+USER+`block/${id}`, {}).pipe(
       catchError((error) => {
         console.error('An error occurred:', error);
@@ -53,7 +53,7 @@ export class UserProfileService {
   }
 
   unblockUser(id: number): Observable<any> {
-      console.log(id)
+    
     return this.http.put<User>(API_URL+USER+`unblock/${id}`,{});
   }
   uploadProfilePicture(file: File, email: string): Observable<HttpEvent<any>> {
