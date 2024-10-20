@@ -28,14 +28,21 @@ export class ProjetComponent {
   deleteID: any;
   endItem: any
   projetForm!: UntypedFormGroup;
+  projetFormEdit!: UntypedFormGroup;
   submitted = false;
   assignList: any;
+  reassignList:any;
+  editProjetId:any;
+  departementId:any;
   term: any
   role:any
   @ViewChild('addProjet', { static: false }) addProjet?: ModalDirective;
+  @ViewChild('editProjetModal', { static: false }) editProjetModal?: ModalDirective;
   @ViewChild('deleteRecordModal', { static: false }) deleteRecordModal?: ModalDirective;
   assignedId: any = null;  
   assignto: any =null;
+  reassignedId: any = null;  
+  reassignto: any =null;
   editData: any;
   tooltipPosition: number = 0;
   currentDepartementId!: any;
@@ -65,6 +72,15 @@ export class ProjetComponent {
       avancement: ['', [Validators.required]],
       etat: ['', [Validators.required]]
     });
+    this.projetFormEdit = this.formBuilder.group({
+     
+      nom: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      dateDebut: ['', [Validators.required]],
+      dateFin: ['', [Validators.required]],
+      avancement: ['', [Validators.required]],
+      etat: ['', [Validators.required]]
+    });
 
    this.getCurrentDepartement();
 
@@ -75,6 +91,75 @@ export class ProjetComponent {
    this.loadUsersAssignToChef();
   }
 
+
+
+
+  addProjetModalHide(){
+    this.addProjet?.hide();
+    this.projetForm.reset();
+    this.assignedId = null;  
+      this.assignto = null;
+  
+  }
+
+
+  editProjetModalHide(){
+    this.editProjetModal?.hide();
+    this.projetFormEdit.reset();
+    this.assignedId = null;  
+    this.assignto = null;
+    this.departementId=null
+  
+  }
+
+  editProjet(id: any) {
+    this.projetService.getProjetById(id).subscribe((projet: any) => {
+      this.editProjetId = id;
+      console.log(projet)
+      this.projetFormEdit.patchValue({
+        nom: projet.nom,
+        description: projet.description,
+        dateDebut: this.datepipe.transform(projet.dateDebut, 'yyyy-MM-dd'),
+        dateFin: this.datepipe.transform(projet.dateFin, 'yyyy-MM-dd'),
+        avancement: projet.avancement,
+        etat: projet.etat,
+      });
+      this.reassignedId=projet.chefProjet.id
+      this.reassignto=projet.chefProjet
+      this.departementId=projet.departement.id
+      this.editProjetModal?.show();
+    });
+}
+
+updateProjet() {
+    this.submitted = true;
+    if (this.projetFormEdit.valid) {
+      const updateData = {
+        nom: this.projetFormEdit.value.nom,
+        description: this.projetFormEdit.value.description,
+        chefProjetId: this.reassignto.id,
+        departementId: this.departementId,
+        dateDebut: this.projetFormEdit.value.dateDebut,
+        dateFin: this.projetFormEdit.value.dateFin,  
+        avancement: this.projetFormEdit.value.avancement,
+        etat: this.projetFormEdit.value.etat
+      };
+      console.log("update projet data",updateData);
+      
+      this.projetService.editProjet(this.editProjetId, updateData).subscribe(
+        response => {
+          this.toastr.success('projet mis à jour avec succès !', 'Succès');  
+          console.log('projet updated successfully:', response);
+          this.loadProjets();
+         this.editProjetModalHide();
+        },
+        error => {
+          this.toastr.error('Erreur lors de la mise à jour de projet.', 'Erreur'); 
+          console.error('Error updating projet:', error);
+        }
+      );
+    }
+}
 
   getCurrentDepartement(){
     this.route.paramMap.subscribe(params => {
@@ -95,6 +180,7 @@ export class ProjetComponent {
   loadUsersAssignToChef(){
     this.projetService.getUsersAssignToChef().subscribe((data) => {
       this.assignList = data;
+      this.reassignList = data;
       
     });
     
@@ -106,7 +192,6 @@ export class ProjetComponent {
     input.title = input.value;
   }
 
-  // Add Assigne
   addAssign(id: any) {
     if (this.assignedId === id) {
       this.assignedId = null;  
@@ -118,6 +203,17 @@ export class ProjetComponent {
    
   }
   
+  reAssign(id: any) {
+    console.log("projet assigned chef Id"+id)
+    if (this.reassignedId === id) {
+      this.reassignedId = null;  
+     this.reassignto = null;  
+  } else {
+      this.reassignedId = id;
+      const foundChef = this.reassignList.find((chefProjet:any) => chefProjet.id === id);
+      this.reassignto = foundChef;
+  }
+  }
 
 
   saveProjet() {

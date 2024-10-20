@@ -14,6 +14,9 @@ export class ProjetService {
   public getProjetsByDepartement(offset: number, pageSize: number, field: string,idDepartement:any): Observable<any> {
     return this.http.get(API_URL+PROJET+"all/"+offset+"/"+pageSize+"/"+field+"/"+idDepartement);
   }
+  public getProjetById(projectId:any): Observable<any> {
+    return this.http.get(API_URL+PROJET+"findById/"+projectId);
+  }
   public addProjet(data:any):Observable<any> {
     return this.http.post(API_URL+PROJET+"add",data);
   }

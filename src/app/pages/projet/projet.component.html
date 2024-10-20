@@ -68,7 +68,7 @@
                                             <a  [routerLink]="role === 'ADMIN' ? ['/projet/details', projet.id] : ['/User/projet/details', projet.id]" class="btn btn-subtle-primary btn-icon btn-sm "><i class="ph-eye"></i></a>
                                         </li>
                                         <li>
-                                            <a href="javascript:void(0);"  class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn"><i class="ph-pencil"></i></a>
+                                            <a href="javascript:void(0);" (click)="editProjet(projet.id)" class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn"><i class="ph-pencil"></i></a>
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);" (click)="removeItem(projet.id)" class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn"><i class="ph-trash"></i></a>
@@ -115,7 +115,7 @@
         <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="addTicketModalLabel">Ajouter Projet</h5>
-                <button type="button" class="btn-close" (click)="addProjet.hide()"></button>
+                <button type="button" class="btn-close" (click)="addProjetModalHide()"></button>
             </div>
 
             <form (ngSubmit)="saveProjet()" [formGroup]="projetForm" class="tablelist-form" novalidate autocomplete="off">
@@ -231,7 +231,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="hstack gap-2 justify-content-end">
-                        <button type="button" class="btn btn-ghost-danger" (click)="addProjet.hide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="button" class="btn btn-ghost-danger" (click)="addProjetModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
                         <button type="submit" class="btn btn-primary" id="add-btn" [disabled]="projetForm.invalid">Ajouter Projet</button>
                     </div>
                 </div>
@@ -241,6 +241,139 @@
     </div>
 </div>
 
+
+
+
+<div bsModal #editProjetModal="bs-modal" class="modal fade" id="editProjetModal">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-secondary p-3">
+                <h5 class="modal-title text-white" id="addCategoryLabel">Modifier Projet</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="editProjetModalHide()"></button>
+            </div>
+
+            <form (ngSubmit)="updateProjet()" [formGroup]="projetFormEdit" class="tablelist-form" novalidate autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+                    <input type="hidden" id="id-field">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="client-name-input" class="form-label">Projet Titre <span class="text-danger">*</span></label>
+                                <input type="text" id="client-name-input" class="form-control" formControlName="nom" placeholder="projet titre" required>
+                                <div *ngIf="projetFormEdit.get('nom')?.invalid && projetFormEdit.get('nom')?.touched" class="text-danger">
+                                    Projet Titre is required.
+                                </div>
+                            </div>
+                        </div>
+                               
+                        <div class="col-lg-12">
+                            <div class="mb-4 d-flex align-items-center">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Chef Projet :</h6>
+                                </div>
+                                @if (reassignto) {
+                                <div class="avatar-group justify-content-center" id="assignee-member">
+                               
+                                    <a routerLink="/pages/profile" class="avatar-group-item mb-2" tooltip="{{reassignto.firstName}} {{reassignto.lastName}}">
+                                        <img src="http://localhost:1919/user/image/{{reassignto.photoProfile}}" alt="" class="rounded-circle avatar-xs">
+                                    </a>
+                                
+                                </div>
+                                }
+                            </div>
+                            <ngx-simplebar class="mx-n4 px-4 mb-3" style="max-height: 180px;">
+                                <div class="vstack gap-3 select-element">
+                                    @for (data of reassignList; track $index) {
+                                    <div class="d-flex align-items-center option-list">
+                                        <div class="avatar-xs flex-shrink-0 me-3">
+                                            <img src="http://localhost:1919/user/image/{{data.photoProfile}}" alt="" class="img-fluid rounded-circle">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0"><a href="javascript:void(0);" class="text-body d-block">{{data.firstName}} {{data.lastName}}</a></h6>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <button type="button" class="btn btn-light btn-sm btn-action{{data.id}}" (click)="reAssign(data.id)">
+                                                {{ reassignedId === data.id ? 'Remove' : 'Add' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                    <!-- end member item -->
+                                </div>
+                                <!-- end list -->
+                            </ngx-simplebar>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="projet-description-input" class="form-label">Projet Description <span class="text-danger">*</span></label>
+                                <input type="text" id="tprojet-description-input" formControlName="description" class="form-control" placeholder="Projet Description" required>
+                                <div *ngIf="projetFormEdit.get('description')?.invalid && projetFormEdit.get('description')?.touched" class="text-danger">
+                                    Projet Description is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="create-date-input" class="form-label">Date Debut Projet<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" mwlFlatpickr [altInput]="true" [convertModelValue]="true" dateFormat="Y-m-d" altFormat="d M,Y" formControlName="dateDebut" id="create-date-input" placeholder="date debut du projet" required>
+                                <div *ngIf="projetFormEdit.get('dateDebut')?.invalid && projetFormEdit.get('dateDebut')?.touched" class="text-danger">
+                                    Date Debut Projet is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="due-date-input" class="form-label">Date Fin Projet<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" mwlFlatpickr [altInput]="true" [convertModelValue]="true" dateFormat="Y-m-d" altFormat="d M,Y" formControlName="dateFin" id="due-date-input" placeholder=" date fin du projet" required>
+                                <div *ngIf="projetFormEdit.get('dateFin')?.invalid && projetFormEdit.get('dateFin')?.touched" class="text-danger">
+                                    Date Fin Projet is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="priority-input" class="form-label">Projet Avancement<span class="text-danger">*</span></label>
+                                <input type="range" class="form-range" id="priority-input" formControlName="avancement" min="0" max="100" step="1" (input)="updateTooltip($event)" #rangeInput>
+                                <div class="tooltip" *ngIf="rangeInput.value">{{ rangeInput.value }}%</div>
+                                <div *ngIf="projetFormEdit.get('avancement')?.invalid && projetFormEdit.get('avancement')?.touched" class="text-danger">
+                                    Projet Avancement is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-lg-12">
+                            <div class="mb-3">
+                                <label for="etat-input" class="form-label">Projet Status<span class="text-danger">*</span></label>
+                                <select class="form-select" id="etat-input" formControlName="etat" data-choices data-choices-search-false>
+                                    <option value="">Select Status</option>
+                                    <option value="TERMINE">TERMINE</option>
+                                    <option value="PLANIFIE">PLANIFIE</option>
+                                    <option value="ENCOURS">ENCOURS</option>
+                                    <option value="ANNULE">ANNULE</option>
+                                </select>
+                                <div *ngIf="projetFormEdit.get('etat')?.invalid && projetFormEdit.get('etat')?.touched" class="text-danger">
+                                    Projet Status is required.
+                                </div>
+                            </div>
+                        </div><!--end col-->
+                    </div><!--end row-->
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-ghost-danger" (click)="editProjetModalHide()"><i class="bi bi-x-lg align-baseline me-1"></i> Close</button>
+                        <button type="submit" class="btn btn-primary" id="add-btn" [disabled]="projetFormEdit.invalid">Modifier Projet</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- modal-content -->
+    </div>
+</div><!--end add Property modal-->
 
 <!-- deleteRecordModal -->
 <div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
