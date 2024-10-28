@@ -103,14 +103,14 @@ export class GridComponent {
   }
 
   // Add to starr
-  starredproduct(id: any, event: any, star: any) {
-    event.target.classList.toggle('active')
-    if (star == false) {
-      this.products[id].starred = true
-    } else {
-      this.products[id].starred = false
+    starredproduct(id: any, event: any, star: any) {
+      event.target.classList.toggle('active')
+      if (star == false) {
+        this.products[id].starred = true
+      } else {
+        this.products[id].starred = false
+      }
     }
-  }
 
   // filter bedroom wise
   bedroomFilter(ev: any) {

@@ -122,10 +122,9 @@ export class ActifComponent {
 
     this.risqueForm = this.fb.group({
       nom: ['', Validators.required],
-      priorite: [null, Validators.required],
       probabilite: [null, Validators.required],
       valeurBaseImpact: [null, Validators.required],
-      valeurFinanciere: [null, Validators.required]
+    
     });
 
     this.currentForm = this.fb.group({});
@@ -336,9 +335,7 @@ export class ActifComponent {
       }
 
       registerData.append('risqueNom', this.risqueForm.value.nom);
-      registerData.append('risqueValeurFinanciere', this.risqueForm.value.valeurFinanciere);
       registerData.append('probabilite', this.risqueForm.value.probabilite);
-      registerData.append('risquePriorite', this.risqueForm.value.priorite);
       registerData.append('valeurBaseImpact', this.risqueForm.value.valeurBaseImpact);
 
       this.actifService.addActif(registerData).subscribe(

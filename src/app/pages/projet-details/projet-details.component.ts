@@ -148,16 +148,16 @@ export class ProjetDetailsComponent {
           this.loadRiskMatrix();
           this.AssigningActif?.hide();
           this.loadActifsNotInProject();
-          this.toastr.success('Actifs assignés avec succès!', 'Succès'); // Success toast
+          this.toastr.success('Actifs assignés avec succès!', 'Succès'); 
         },
         error => {
           console.error('Error assigning actifs', error);
-          this.toastr.error('Erreur lors de l\'assignation des actifs, veuillez réessayer.', 'Erreur'); // Error toast
+          this.toastr.error('Erreur lors de l\'assignation des actifs, veuillez réessayer.', 'Erreur'); 
         }
       );
     } else {
       console.log('No actifs selected.');
-      this.toastr.warning('Aucun actif sélectionné.', 'Avertissement'); // Warning toast
+      this.toastr.warning('Aucun actif sélectionné.', 'Avertissement'); 
     }
   }
 
@@ -237,4 +237,24 @@ export class ProjetDetailsComponent {
       }
     );
   }
+
+
+
+  getRiskClass(actif: any): string {
+    const riskValue = actif.risque.valeurBaseImpact * actif.risque.probabilite;
+    
+    if (riskValue < 25) {
+      return 'text-success';
+    } else if (riskValue >= 25 && riskValue < 50) {
+      return 'text-warning';
+    } else {
+      return 'text-danger'; 
+    }
+  }
+
+  
+  getRiskValue(actif: any): number {
+    return actif.risque.valeurBaseImpact * actif.risque.probabilite;
+  }
+
 }

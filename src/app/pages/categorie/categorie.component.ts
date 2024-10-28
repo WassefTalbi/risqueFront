@@ -63,6 +63,7 @@ export class CategorieComponent {
     // Fetch Data
     setTimeout(() => {
      this.loadCategories();
+     
       document.getElementById('elmLoader')?.classList.add('d-none')
     }, 1000)
   }
@@ -89,12 +90,12 @@ export class CategorieComponent {
   };
 
 
-  onUploadSuccess(event: any) {
-    setTimeout(() => {
-      this.fileLogo = event.target.files[0];
-      this.logoUrl=null
-    }, 0);
-  }
+    onUploadSuccess(event: any) {
+      setTimeout(() => {
+        this.fileLogo = event.target.files[0];
+        this.logoUrl=null
+      }, 0);
+    }
 
 
   removeFile(event: any) {
@@ -177,7 +178,7 @@ updateCategory() {
           this.toastr.success('categorie mis à jour avec succès !', 'Succès');  
           console.log('categorie updated successfully:', response);
           this.loadCategories();
-         this.editCategoryModal?.hide();
+         this.editCategoryModalHide();
         },
         error => {
           this.toastr.error('Erreur lors de la mise à jour de categorie.', 'Erreur'); 

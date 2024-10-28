@@ -74,9 +74,9 @@ export class RisqueComponent {
 
     this.risqueFormEdit = this.formBuilder.group({
       nom: ['', [Validators.required]],
-      valeurFinanciere: ["", [Validators.required]],
+     
       probabilite: ["", [Validators.required, Validators.min(1), Validators.max(6)]],
-      priorite: ["", [Validators.required]],
+     
       valeurBaseImpact: ["", [Validators.required, Validators.min(1), Validators.max(6)]],
     });
 
@@ -257,9 +257,9 @@ export class RisqueComponent {
       console.log(risque)
       this.risqueFormEdit.patchValue({
         nom: risque.nom,
-        valeurFinanciere: risque.valeurFinanciere,
+    
         probabilite: risque.probabilite,
-        priorite: risque.priorite,
+     
         valeurBaseImpact: risque.valeurBaseImpact,
       });
     
@@ -272,9 +272,9 @@ updateRisque() {
     if (this.risqueFormEdit.valid) {
       const updateData = new FormData();
       updateData.append('risqueNom', this.risqueFormEdit.value.nom);
-      updateData.append('risqueValeurFinanciere', this.risqueFormEdit.value.valeurFinanciere);
+    
       updateData.append('probabilite', this.risqueFormEdit.value.probabilite);
-      updateData.append('risquePriorite', this.risqueFormEdit.value.priorite);
+  
       updateData.append('valeurBaseImpact', this.risqueFormEdit.value.valeurBaseImpact);
       this.risqueService.editRisque(this.editRisqueId, updateData).subscribe(
         response => {

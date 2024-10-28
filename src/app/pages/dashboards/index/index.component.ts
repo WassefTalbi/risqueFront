@@ -217,10 +217,7 @@ export class IndexComponent {
     }
   
  
-  
-   
-    
-  // Chart Colors Set
+
   private getChartColorsArray(colors: any) {
     colors = JSON.parse(colors);
     return colors.map(function (value: any) {

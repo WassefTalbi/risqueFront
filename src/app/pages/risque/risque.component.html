@@ -265,15 +265,7 @@
         
                           <div class="row">
                               
-                              <div class="col-lg-6">
-                                  <div class="mb-3">
-                                      <label for="priorite-input" class="form-label">Priorite<span class="text-danger">*</span></label>
-                                      <input type="number" id="lessons-input" class="form-control" formControlName="priorite" placeholder="priorite" required>
-                                      <div *ngIf="risqueFormEdit.get('priorite')?.hasError('required') && risqueFormEdit.get('priorite')?.touched" class="text-danger">
-                                          risque priorite is required.
-                                      </div>
-                                  </div>
-                              </div><!--end col-->
+                          
                               <div class="col-lg-6">
                                   <div class="mb-3">
                                       <label for="probabilite-input" class="form-label">Probabilite<span class="text-danger">*</span></label>
@@ -308,18 +300,7 @@
                                      </div>
                                   </div>
                               </div><!--end col-->
-                              <div class="col-lg-6">
-                              <div class="mb-3">
-                                  <label for="valeurFinanciere-input" class="form-label">Valeur Financiere<span class="text-danger">*</span></label>
-                                  <div class="input-group">
-                                      <span class="input-group-text">$</span>
-                                  <input type="number" id="valeurFinanciere-input" class="form-control" formControlName="valeurFinanciere" placeholder="valeur Financiere" required>
-                                  <div *ngIf="risqueFormEdit.get('valeurFinanciere')?.hasError('required') && risqueFormEdit.get('valeurFinanciere')?.touched" class="text-danger">
-                                       valeur Financiere is required.
-                                  </div>
-                              </div>
-                              </div>
-                          </div><!--end col-->
+                             
                           </div><!--end row-->
                         
                       
